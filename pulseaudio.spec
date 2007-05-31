@@ -2,7 +2,7 @@
 
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
-Version:	0.9.5
+Version:	0.9.6
 Release:	2%{?dist}
 License:	GPL
 Group:		System Environment/Daemons
@@ -13,22 +13,28 @@ BuildRequires: tcp_wrappers, libsamplerate-devel, libsndfile-devel
 BuildRequires: liboil-devel, m4, libcap-devel, libtool-ltdl-devel, pkgconfig
 BuildRequires: alsa-lib-devel, glib2-devel, avahi-devel GConf2-devel
 BuildRequires: lirc-devel doxygen jack-audio-connection-kit-devel
-BuildRequires: hal-devel
+BuildRequires: hal-devel libatomic_ops-devel
 # Libtool is dragging in rpaths.  Fedora's libtool should get rid of the
 # unneccessary ones.
 BuildRequires: libtool
-
-# FC 5
 BuildRequires:	libXt-devel, xorg-x11-proto-devel
-# FC 4
-#BuildRequires:	xorg-x11-devel
 
-Patch1: 	pulseaudio-0.9.2-nochown.patch
+Patch1: 	pulseaudio-0.9.6-nochown.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
 systems. It is intended to be an improved drop-in replacement for the 
 Enlightened Sound Daemon (ESOUND).
+
+%package esound-compat
+Summary:	PulseAudio EsounD daemon compatibility script
+Group:		System Environment/Daemons
+Requires:	%{name} = %{version}-%{release}
+Conflicts:	esound
+
+%description esound-compat
+A compatibility script that allows applications to call /usr/bin/esd
+and start PulseAudio with EsounD protocol modules.
 
 %package module-lirc
 Summary:	LIRC support for the PulseAudio sound server
@@ -146,6 +152,8 @@ rm -rf $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/pulse-%{drvver}/
 rm -rf $RPM_BUILD_ROOT%{_libdir}/*.a
 chmod 755 $RPM_BUILD_ROOT%{_bindir}/pulseaudio
 
+ln -s esdcompat $RPM_BUILD_ROOT%{_bindir}/esd
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -183,7 +191,6 @@ fi
 %config(noreplace) %{_sysconfdir}/pulse/daemon.conf
 %config(noreplace) %{_sysconfdir}/pulse/default.pa
 %attr(4755,root,root) %{_bindir}/pulseaudio
-%{_bindir}/esdcompat
 %{_libdir}/libpulsecore.so.*
 %dir %{_libdir}/pulse-%{drvver}/
 %dir %{_libdir}/pulse-%{drvver}/modules/
@@ -246,6 +253,11 @@ fi
 %{_libdir}/pulse-%{drvver}/modules/module-tunnel-sink.so
 %{_libdir}/pulse-%{drvver}/modules/module-tunnel-source.so
 %{_libdir}/pulse-%{drvver}/modules/module-volume-restore.so
+
+%files esound-compat
+%defattr(-,root,root)
+%{_bindir}/esdcompat
+%{_bindir}/esd
 
 %files module-lirc
 %defattr(-,root,root)
@@ -317,6 +329,25 @@ fi
 %{_libdir}/libpulsedsp.so
 
 %changelog
+* Tue May 29 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.6-2
+- Add libatomic_ops-devel as a build requirement.
+
+* Tue May 29 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.6-1
+- Upgrade to 0.9.6.
+
+* Sat Mar  2 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.5-5
+- Fix merge problems with patch.
+
+* Fri Mar  2 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.5-4
+- Add patch to handle ALSA changing the frame size (bug 230211).
+- Add patch for suspended ALSA devices (bug 228205).
+
+* Mon Feb  5 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.5-3
+- Add esound-compat subpackage that allows PulseAudio to be a drop-in
+  replacement for esd (based on patch by Matthias Clasen).
+- Backport patch allows startup to continue even when the users'
+  config cannot be read.
+
 * Wed Oct 23 2006 Pierre Ossman <drzeus@drzeus.cx> 0.9.5-2
 - Create user and groups for daemon.
 
