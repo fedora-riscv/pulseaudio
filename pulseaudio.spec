@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.7
-Release:	0.16.svn20071017%{?dist}
+Release:	0.17.svn20071017%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 #Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -24,6 +24,7 @@ BuildRequires: openssl-devel
 Requires:	%{name}-core-libs = %{version}-%{release}
 Obsoletes:	pulseaudio-devel
 Patch1: 	pulseaudio-0.9.6-nochown.patch
+Patch2:		pulseaudio-0.9.7-eof-fix-r1964.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
@@ -150,6 +151,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %prep
 %setup -q -T -b0
 %patch1 -p1
+%patch2 -p3
 
 %build
 %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -344,6 +346,9 @@ fi
 %{_libdir}/libpulsedsp.so
 
 %changelog
+* Tue Oct 30 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.7-0.17.svn20071017
+- fix #322481
+
 * Wed Oct 17 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.7-0.16.svn20071017
 - Another SVN snapshot, fixing another round of bugs (#330541)
 - Split libpulscore into a seperate package to work around multilib limitation (#335011)
