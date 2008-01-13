@@ -2,20 +2,20 @@
 
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
-Version:	0.9.7
-Release:	0.17.svn20071017%{?dist}
+Version:	0.9.8
+Release:	4%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 #Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
-Source0:	pulseaudio-0.9.7.svn20071017.tar.gz
+Source0:	pulseaudio-0.9.8.tar.gz
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: tcp_wrappers-devel, libsamplerate-devel, libsndfile-devel
 BuildRequires: liboil-devel, m4, libcap-devel, libtool-ltdl-devel, pkgconfig
 BuildRequires: alsa-lib-devel, glib2-devel, avahi-devel, GConf2-devel
-BuildRequires: lirc-devel, doxygen
+BuildRequires: lirc-devel, doxygen, jack-audio-connection-kit-devel
 #jack-audio-connection-kit-devel
-BuildRequires: hal-devel, libatomic_ops-devel
+BuildRequires: hal-devel, libatomic_ops-devel, PolicyKit-devel bluez-libs-devel
 # Libtool is dragging in rpaths.  Fedora's libtool should get rid of the
 # unneccessary ones.
 BuildRequires: libtool
@@ -24,7 +24,9 @@ BuildRequires: openssl-devel
 Requires:	%{name}-core-libs = %{version}-%{release}
 Obsoletes:	pulseaudio-devel
 Patch1: 	pulseaudio-0.9.6-nochown.patch
-Patch2:		pulseaudio-0.9.7-eof-fix-r1964.patch
+Patch2: 	pulseaudio-0.9.8-fix-sample-upload.patch
+Patch3: 	pulseaudio-0.9.8-unbreak-tunnels.patch
+Patch4:		pulseaudio-0.9.8-create-dot-pulse.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
@@ -62,17 +64,28 @@ X11 bell and security modules for the PulseAudio sound server.
 Summary:	Zeroconf support for the PulseAudio sound server
 Group:		System Environment/Daemons
 Requires:	%{name} = %{version}-%{release}
+Requires: 	pulseaudio-utils
 
 %description module-zeroconf
 Zeroconf publishing module for the PulseAudio sound server.
 
-#%package module-jack
-#Summary:	JACK support for the PulseAudio sound server
-#Group:		System Environment/Daemons
-#Requires:	%{name} = %{version}-%{release}
-#
-#%description module-jack
-#JACK sink and source modules for the PulseAudio sound server.
+%package module-bluetooth
+Summary:	Bluetooth proximity support for the PulseAudio sound server
+Group:		System Environment/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description module-bluetooth
+Contains a module that can be used to automatically turn down the volume if
+a bluetooth mobile phone leaves the proximity or turn it up again if it enters the
+proximity again
+
+%package module-jack
+Summary:	JACK support for the PulseAudio sound server
+Group:		System Environment/Daemons
+Requires:	%{name} = %{version}-%{release}
+
+%description module-jack
+JACK sink and source modules for the PulseAudio sound server.
 
 %package module-gconf
 Summary:	GConf support for the PulseAudio sound server
@@ -150,8 +163,9 @@ This package contains command line utilities for the PulseAudio sound server.
 
 %prep
 %setup -q -T -b0
-%patch1 -p1
-%patch2 -p3
+%patch2 -p2
+%patch3 -p1
+%patch4 -p0
 
 %build
 %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -242,7 +256,7 @@ fi
 %{_libdir}/pulse-%{drvver}/modules/module-esound-compat-spawnpid.so
 %{_libdir}/pulse-%{drvver}/modules/module-esound-protocol-tcp.so
 %{_libdir}/pulse-%{drvver}/modules/module-esound-protocol-unix.so
-#%{_libdir}/pulse-%{drvver}/modules/module-esound-sink.so
+%{_libdir}/pulse-%{drvver}/modules/module-esound-sink.so
 %{_libdir}/pulse-%{drvver}/modules/module-hal-detect.so
 %{_libdir}/pulse-%{drvver}/modules/module-http-protocol-tcp.so
 %{_libdir}/pulse-%{drvver}/modules/module-http-protocol-unix.so
@@ -261,18 +275,24 @@ fi
 %{_libdir}/pulse-%{drvver}/modules/module-simple-protocol-tcp.so
 %{_libdir}/pulse-%{drvver}/modules/module-simple-protocol-unix.so
 %{_libdir}/pulse-%{drvver}/modules/module-sine.so
-#%{_libdir}/pulse-%{drvver}/modules/module-tunnel-sink.so
-#%{_libdir}/pulse-%{drvver}/modules/module-tunnel-source.so
+%{_libdir}/pulse-%{drvver}/modules/module-tunnel-sink.so
+%{_libdir}/pulse-%{drvver}/modules/module-tunnel-source.so
 %{_libdir}/pulse-%{drvver}/modules/module-volume-restore.so
 %{_libdir}/pulse-%{drvver}/modules/module-suspend-on-idle.so
 %{_libdir}/pulse-%{drvver}/modules/module-default-device-restore.so
 %{_libdir}/pulse-%{drvver}/modules/module-ladspa-sink.so
 %{_libdir}/pulse-%{drvver}/modules/module-remap-sink.so
+%{_datadir}/PolicyKit/policy/PulseAudio.policy
+%{_mandir}/man1/pulseaudio.1.gz
+%{_mandir}/man5/default.pa.5.gz
+%{_mandir}/man5/pulse-client.conf.5.gz
+%{_mandir}/man5/pulse-daemon.conf.5.gz
 
 %files esound-compat
 %defattr(-,root,root)
 %{_bindir}/esdcompat
 %{_bindir}/esd
+%{_mandir}/man1/esdcompat.1.gz
 
 %files module-lirc
 %defattr(-,root,root)
@@ -291,11 +311,17 @@ fi
 %defattr(-,root,root)
 %{_libdir}/pulse-%{drvver}/modules/libavahi-wrap.so
 %{_libdir}/pulse-%{drvver}/modules/module-zeroconf-publish.so
+%{_libdir}/pulse-%{drvver}/modules/module-zeroconf-discover.so
 
-#%files module-jack
-#%defattr(-,root,root)
-#%{_libdir}/pulse-%{drvver}/modules/module-jack-sink.so
-#%{_libdir}/pulse-%{drvver}/modules/module-jack-source.so
+%files module-jack
+%defattr(-,root,root)
+%{_libdir}/pulse-%{drvver}/modules/module-jack-sink.so
+%{_libdir}/pulse-%{drvver}/modules/module-jack-source.so
+
+%files module-bluetooth
+%defattr(-,root,root)
+%{_libdir}/pulse-%{drvver}/modules/module-bt-proximity.so
+%{_libexecdir}/pulse/bt-proximity-helper
 
 %files module-gconf
 %defattr(-,root,root)
@@ -322,6 +348,7 @@ fi
 %defattr(-,root,root)
 %{_bindir}/pabrowse
 %{_libdir}/libpulse-browse.so.*
+%{_mandir}/man1/pabrowse.1.gz
 
 %files libs-devel
 %defattr(-,root,root)
@@ -344,10 +371,27 @@ fi
 %{_bindir}/padsp
 %{_bindir}/pasuspender
 %{_libdir}/libpulsedsp.so
+%{_mandir}/man1/pabrowse.1.gz
+%{_mandir}/man1/pacat.1.gz
+%{_mandir}/man1/pacmd.1.gz
+%{_mandir}/man1/pactl.1.gz
+%{_mandir}/man1/paplay.1.gz
+%{_mandir}/man1/pasuspender.1.gz
+%{_mandir}/man1/padsp.1.gz
+%{_mandir}/man1/pax11publish.1.gz
 
 %changelog
-* Tue Oct 30 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.7-0.17.svn20071017
-- fix #322481
+* Thu Nov 29 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.8-4
+- add missing dependency on pulseaudio-utils for pulseaudio-module-x11
+
+* Thu Nov 29 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.8-3
+- Create ~/.pulse/ if not existant
+
+* Thu Nov 29 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.8-2
+- Add missing dependency on jack-audio-connection-kit-devel
+
+* Wed Nov 28 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.8-1
+- Upgrade to current upstream
 
 * Wed Oct 17 2007 Lennart Poettering <lpoetter@redhat.com> 0.9.7-0.16.svn20071017
 - Another SVN snapshot, fixing another round of bugs (#330541)

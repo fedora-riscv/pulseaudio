@@ -1,0 +1,11 @@
+Index: /trunk/src/pulse/stream.c
+===================================================================
+--- /trunk/src/pulse/stream.c (revision 2067)
++++ /trunk/src/pulse/stream.c (revision 2074)
+@@ -587,5 +587,5 @@
+     }
+ 
+-    if (s->context->version >= 12) {
++    if (s->context->version >= 12 && s->direction != PA_STREAM_UPLOAD) {
+         pa_sample_spec ss;
+         pa_channel_map cm;
