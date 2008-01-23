@@ -1,0 +1,108 @@
+Fail when dropping root privileges is not successful.
+
+https://bugzilla.novell.com/show_bug.cgi?id=347822
+https://bugzilla.redhat.com/show_bug.cgi?id=425481
+
+Lubomir Kundrak <lkundrak@redhat.com>
+
+diff -urp pulseaudio-0.9.6.orig/src/daemon/caps.c pulseaudio-0.9.6/src/daemon/caps.c
+--- pulseaudio-0.9.6.orig/src/daemon/caps.c	2007-05-25 22:35:33.000000000 +0200
++++ pulseaudio-0.9.6/src/daemon/caps.c	2008-01-23 16:47:47.000000000 +0100
+@@ -54,27 +54,35 @@ int setresuid(uid_t r, uid_t e, uid_t s)
+ #ifdef HAVE_GETUID
+ 
+ /* Drop root rights when called SUID root */
+-void pa_drop_root(void) {
++int pa_drop_root(void) {
+     uid_t uid = getuid();
++    int error = 0;
+ 
+     if (uid == 0 || geteuid() != 0)
+-        return;
++        return 0;
+ 
+     pa_log_info("dropping root rights.");
+ 
+ #if defined(HAVE_SETRESUID)
+-    setresuid(uid, uid, uid);
++    error += setresuid(uid, uid, uid);
+ #elif defined(HAVE_SETREUID)
+-    setreuid(uid, uid);
++    error += setreuid(uid, uid);
+ #else
+-    setuid(uid);
+-    seteuid(uid);
++    error += setuid(uid);
++    error += seteuid(uid);
+ #endif
++    if (error != 0) {
++        pa_log_error("Could not drop root priviliges.");
++        return -1;
++    }
++
++    return 0;
+ }
+ 
+ #else
+ 
+-void pa_drop_root(void) {
++int pa_drop_root(void) {
++    return 0;
+ }
+ 
+ #endif
+@@ -141,8 +149,7 @@ int pa_limit_caps(void) {
+ }
+ 
+ int pa_drop_caps(void) {
+-    pa_drop_root();
+-    return 0;
++    return pa_drop_root();
+ }
+ 
+ #endif
+diff -urp pulseaudio-0.9.6.orig/src/daemon/caps.h pulseaudio-0.9.6/src/daemon/caps.h
+--- pulseaudio-0.9.6.orig/src/daemon/caps.h	2007-05-13 01:21:39.000000000 +0200
++++ pulseaudio-0.9.6/src/daemon/caps.h	2008-01-23 16:47:53.000000000 +0100
+@@ -24,7 +24,7 @@
+   USA.
+ ***/
+ 
+-void pa_drop_root(void);
++int pa_drop_root(void);
+ int pa_limit_caps(void);
+ int pa_drop_caps(void);
+ 
+diff -urp pulseaudio-0.9.6.orig/src/daemon/main.c pulseaudio-0.9.6/src/daemon/main.c
+--- pulseaudio-0.9.6.orig/src/daemon/main.c	2007-05-25 22:35:33.000000000 +0200
++++ pulseaudio-0.9.6/src/daemon/main.c	2008-01-23 16:45:49.000000000 +0100
+@@ -341,7 +341,8 @@ int main(int argc, char *argv[]) {
+         if (pa_limit_caps() > 0)
+             /* We managed to drop capabilities except the needed
+              * ones. Hence we can drop the uid. */
+-            pa_drop_root();
++            if (pa_drop_root() < 0)
++                goto finish;
+     }
+ 
+     setlocale(LC_ALL, "");
+@@ -349,7 +350,8 @@ int main(int argc, char *argv[]) {
+     if (suid_root && (pa_own_uid_in_group(PA_REALTIME_GROUP, &gid) <= 0 || gid >= 1000)) {
+         pa_log_warn("WARNING: called SUID root, but not in group '"PA_REALTIME_GROUP"'.");
+         pa_drop_caps();
+-        pa_drop_root();
++        if (pa_drop_root() < 0)
++            goto finish;
+         suid_root = real_root = 0;
+     }
+ 
+@@ -390,7 +392,8 @@ int main(int argc, char *argv[]) {
+ 
+     if (suid_root) {
+         pa_drop_caps();
+-        pa_drop_root();
++        if (pa_drop_root() < 0)
++            goto finish;
+     }
+ 
+     if (conf->dl_search_path)

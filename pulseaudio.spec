@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.6
-Release:	2%{?dist}
+Release:	2%{?dist}.1
 License:	GPL
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -20,6 +20,7 @@ BuildRequires: libtool
 BuildRequires:	libXt-devel, xorg-x11-proto-devel
 
 Patch1: 	pulseaudio-0.9.6-nochown.patch
+Patch2: 	pulseaudio-0.9.6-droproot.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
@@ -138,6 +139,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %prep
 %setup -q 
 %patch1 -p1
+%patch2 -p1
 
 %build
 %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -329,6 +331,9 @@ fi
 %{_libdir}/libpulsedsp.so
 
 %changelog
+* Wed Jan 23 2008 Lubomir Kundrak <lkundrak@redhat.com> 0.9.6-2.1
+- Fix CVE-2008-0008 security issue (#425481)
+
 * Tue May 29 2007 Pierre Ossman <drzeus@drzeus.cx> 0.9.6-2
 - Add libatomic_ops-devel as a build requirement.
 
