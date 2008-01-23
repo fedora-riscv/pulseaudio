@@ -1,0 +1,112 @@
+Fail when dropping root privileges is not successful.
+
+https://bugzilla.novell.com/show_bug.cgi?id=347822
+https://bugzilla.redhat.com/show_bug.cgi?id=425481
+
+Lubomir Kundrak <lkundrak@redhat.com>
+
+Index: src/daemon/main.c
+===================================================================
+--- src/daemon/main.c	(revision 2098)
++++ src/daemon/main.c	(working copy)
+@@ -372,7 +372,8 @@
+         pa_limit_caps();
+ 
+         /* Drop priviliges, but keep CAP_SYS_NICE */
+-        pa_drop_root();
++        if (pa_drop_root() < 0)
++            goto finish;
+ 
+         /* After dropping root, the effective set is reset, hence,
+          * let's raise it again */
+@@ -443,7 +444,8 @@
+              * let's give it up early */
+ 
+             pa_drop_caps();
+-            pa_drop_root();
++            if (pa_drop_root() < 0)
++                goto finish;
+             suid_root = real_root = FALSE;
+ 
+             if (conf->high_priority || conf->realtime_scheduling)
+@@ -497,7 +499,8 @@
+ 
+         if (drop)  {
+             pa_drop_caps();
+-            pa_drop_root();
++            if (pa_drop_root() < 0)
++                goto finish;
+             suid_root = real_root = FALSE;
+         }
+     }
+Index: src/daemon/caps.c
+===================================================================
+--- src/daemon/caps.c	(revision 2098)
++++ src/daemon/caps.c	(working copy)
+@@ -54,27 +54,36 @@
+ #ifdef HAVE_GETUID
+ 
+ /* Drop root rights when called SUID root */
+-void pa_drop_root(void) {
++int pa_drop_root(void) {
+     uid_t uid = getuid();
++    int error = 0;
+ 
+     if (uid == 0 || geteuid() != 0)
+-        return;
++        return 0;
+ 
+     pa_log_info("Dropping root priviliges.");
+ 
+ #if defined(HAVE_SETRESUID)
+-    setresuid(uid, uid, uid);
++    error += setresuid(uid, uid, uid);
+ #elif defined(HAVE_SETREUID)
+-    setreuid(uid, uid);
++    error += setreuid(uid, uid);
+ #else
+-    setuid(uid);
+-    seteuid(uid);
++    error += setuid(uid);
++    error += seteuid(uid);
+ #endif
++
++    if (error != 0) {
++        pa_log_error("Could not drop root priviliges.");
++        return -1;
++    }
++
++    return 0;
+ }
+ 
+ #else
+ 
+-void pa_drop_root(void) {
++int pa_drop_root(void) {
++    return 0;
+ }
+ 
+ #endif
+@@ -142,8 +151,7 @@
+ }
+ 
+ int pa_drop_caps(void) {
+-    pa_drop_root();
+-    return 0;
++    return pa_drop_root();
+ }
+ 
+ #endif
+Index: src/daemon/caps.h
+===================================================================
+--- src/daemon/caps.h	(revision 2098)
++++ src/daemon/caps.h	(working copy)
+@@ -24,7 +24,7 @@
+   USA.
+ ***/
+ 
+-void pa_drop_root(void);
++int pa_drop_root(void);
+ int pa_limit_caps(void);
+ int pa_drop_caps(void);
+ 
