@@ -30,6 +30,7 @@ Obsoletes:	pulseaudio-devel
 #Patch7:	pulseaudio-0.9.8-ltdl-assert.patch
 #Patch8:	pulseaudio-0.9.8-disable-realtime.patch
 #Patch9:	pulseaudio-0.9.8-cputime-abort.patch
+Patch10:	pulseaudio-0.9.10-lock-file.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
@@ -174,6 +175,7 @@ This package contains command line utilities for the PulseAudio sound server.
 #%patch7 -p0 -b .ltdl-assert
 #%patch8 -p1 -b .realtime
 #%patch9 -p1 -b .cputime-abort
+%patch10 -p0 -b .lock-file
 
 %build
 %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -399,6 +401,10 @@ fi
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Thu Sep 9 2008 Lennart Poettering <lpoetter@redhat.com> 0.9.10-2
+- Fix lock file handling: properly check if the PID stored in our lock file
+  actually belongs to us. Fixes #438284
+
 * Sun Mar 30 2008 Lennart Poettering <lpoetter@redhat.com> 0.9.10-1
 - Update to PulseAudio 0.9.10
 - drop all patches, since they have been integrated upstream
