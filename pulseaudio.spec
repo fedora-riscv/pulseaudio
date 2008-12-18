@@ -25,6 +25,7 @@ BuildRequires: speex-devel >= 1.2
 BuildRequires: libasyncns-devel
 BuildRequires: intltool
 Requires:	%{name}-core-libs = %{version}-%{release}
+Requires:	%{name}-utils = %{version}-%{release}
 Obsoletes:	pulseaudio-devel
 Patch1: 0001-Initialize-exit_idle_time-to-1-instead-of-0-when-i.patch
 Patch2: 0002-Unload-module-bluetooth-device-if-the-remote-device.patch
