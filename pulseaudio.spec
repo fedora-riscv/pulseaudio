@@ -25,7 +25,6 @@ BuildRequires: speex-devel >= 1.2
 BuildRequires: libasyncns-devel
 BuildRequires: intltool
 Requires:	%{name}-core-libs = %{version}-%{release}
-Requires:	%{name}-utils = %{version}-%{release}
 Obsoletes:	pulseaudio-devel
 Patch1: 0001-Initialize-exit_idle_time-to-1-instead-of-0-when-i.patch
 Patch2: 0002-Unload-module-bluetooth-device-if-the-remote-device.patch
@@ -80,6 +79,7 @@ LIRC volume control module for the PulseAudio sound server.
 Summary:	X11 support for the PulseAudio sound server
 Group:		System Environment/Daemons
 Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-utils = %{version}-%{release}
 
 %description module-x11
 X11 bell and security modules for the PulseAudio sound server.
@@ -267,9 +267,7 @@ groupadd -r pulse-access &>/dev/null || :
 %config(noreplace) %{_sysconfdir}/pulse/daemon.conf
 %config(noreplace) %{_sysconfdir}/pulse/default.pa
 %config(noreplace) %{_sysconfdir}/pulse/system.pa
-%config %{_sysconfdir}/xdg/autostart/pulseaudio.desktop
 %attr(4755,root,root) %{_bindir}/pulseaudio
-%{_bindir}/start-pulseaudio-x11
 %dir %{_libdir}/pulse-%{drvver}/
 %dir %{_libdir}/pulse-%{drvver}/modules/
 %{_libdir}/pulse-%{drvver}/modules/libalsa-util.so
@@ -358,6 +356,8 @@ groupadd -r pulse-access &>/dev/null || :
 
 %files module-x11
 %defattr(-,root,root)
+%config %{_sysconfdir}/xdg/autostart/pulseaudio.desktop
+%{_bindir}/start-pulseaudio-x11
 %{_libdir}/pulse-%{drvver}/modules/libx11prop.so
 %{_libdir}/pulse-%{drvver}/modules/libx11wrap.so
 %{_libdir}/pulse-%{drvver}/modules/module-x11-bell.so
