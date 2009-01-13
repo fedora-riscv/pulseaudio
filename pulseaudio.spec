@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.14
-Release:	1%{?dist}
+Release:	2%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -26,6 +26,8 @@ BuildRequires: libasyncns-devel
 BuildRequires: intltool
 Requires:	%{name}-core-libs = %{version}-%{release}
 Obsoletes:	pulseaudio-devel
+#upstream commit c245050
+Patch1:		pulseaudio-0.9.14-mixer-select.patch
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating 
@@ -163,6 +165,7 @@ This package contains command line utilities for the PulseAudio sound server.
 
 %prep
 %setup -q -T -b0
+%patch1 -p1 -b .mixer-select
 
 %build
 CFLAGS="-ggdb" %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -394,6 +397,9 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Tue Jan 13 2009 Adel Gadllah <adel.gadllah@gmail.com> 0.9.14-2
+- Prefer mixer controls with volumes over switches
+
 * Tue Jan 13 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.14-1
 - New release, incorporating all 24 patches we were shipping in the rpm plus
   quite a few more fixes.
