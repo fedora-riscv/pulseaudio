@@ -1,0 +1,13 @@
+diff -urN pulseaudio-0.9.15.orig/src/daemon/start-pulseaudio-x11.in pulseaudio-0.9.15/src/daemon/start-pulseaudio-x11.in
+--- pulseaudio-0.9.15.orig/src/daemon/start-pulseaudio-x11.in	2009-02-19 21:26:55.000000000 -0500
++++ pulseaudio-0.9.15/src/daemon/start-pulseaudio-x11.in	2009-04-22 16:48:37.574738056 -0400
+@@ -19,6 +19,9 @@
+ 
+ set -e
+ 
++# Exit without running pulseaudio daemon if this is a remote desktop session
++[ -n "$PULSE_SERVER" ] && exit 0
++
+ @PA_BINARY@ --start "$@"
+ 
+ if [ x"$DISPLAY" != x ] ; then

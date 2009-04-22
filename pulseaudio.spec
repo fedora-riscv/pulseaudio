@@ -3,10 +3,11 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.14
-Release:	2%{?dist}
+Release:	3%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
+Patch2:         pulseaudio-0.9.15-no-daemon-if-remote-desktop.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: tcp_wrappers-devel, libsamplerate-devel, libsndfile-devel
@@ -166,6 +167,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %prep
 %setup -q -T -b0
 %patch1 -p1 -b .mixer-select
+%patch2 -p1 -b .no-daemon-if-remote-desktop
 
 %build
 CFLAGS="-ggdb" %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -397,6 +399,10 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Wed Apr 22 2009 Warren Togami <wtogami@redhat.com> 0.9.14-3
+- Bug #497214
+  Do not start pulseaudio daemon if PULSE_SERVER directs pulse elsewhere.
+
 * Tue Jan 13 2009 Adel Gadllah <adel.gadllah@gmail.com> 0.9.14-2
 - Prefer mixer controls with volumes over switches
 
