@@ -3,10 +3,11 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	10%{?dist}
+Release:	11%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
+Patch0:         pulseaudio-0.9.15-no-daemon-if-remote-desktop.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -187,6 +188,7 @@ This package contains command line utilities for the PulseAudio sound server.
 
 %prep
 %setup -q -T -b0
+%patch0 -p1 
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -407,6 +409,10 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Wed Apr 22 2009 Warren Togami <wtogami@redhat.com> 0.9.15-11
+- Bug #497214
+  Do not start pulseaudio daemon if PULSE_SERVER directs pulse elsewhere.
+
 * Mon Apr 13 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-10
 - Final 0.9.15 release
 
