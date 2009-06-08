@@ -1,0 +1,49 @@
+From 8d9c26e3b6d29d3922a7cc740f273e34ea97498e Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 8 May 2009 02:02:36 +0200
+Subject: [PATCH] core: cache requested latency only when we are running, not while we are still constructing
+
+---
+ src/pulsecore/sink.c   |    7 +++++--
+ src/pulsecore/source.c |    7 +++++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index 3eb759c..0f594da 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -1858,8 +1858,11 @@ pa_usec_t pa_sink_get_requested_latency_within_thread(pa_sink *s) {
+     if (result != (pa_usec_t) -1)
+         result = PA_CLAMP(result, s->thread_info.min_latency, s->thread_info.max_latency);
+ 
+-    s->thread_info.requested_latency = result;
+-    s->thread_info.requested_latency_valid = TRUE;
++    if (PA_SINK_IS_LINKED(s->thread_info.state)) {
++        /* Only cache if properly initialized */
++        s->thread_info.requested_latency = result;
++        s->thread_info.requested_latency_valid = TRUE;
++    }
+ 
+     return result;
+ }
+diff --git a/src/pulsecore/source.c b/src/pulsecore/source.c
+index 92387f6..47bc5fb 100644
+--- a/src/pulsecore/source.c
++++ b/src/pulsecore/source.c
+@@ -1113,8 +1113,11 @@ pa_usec_t pa_source_get_requested_latency_within_thread(pa_source *s) {
+     if (result != (pa_usec_t) -1)
+         result = PA_CLAMP(result, s->thread_info.min_latency, s->thread_info.max_latency);
+ 
+-    s->thread_info.requested_latency = result;
+-    s->thread_info.requested_latency_valid = TRUE;
++    if (PA_SOURCE_IS_LINKED(s->thread_info.state)) {
++        /* Only cache this if we are fully set up */
++        s->thread_info.requested_latency = result;
++        s->thread_info.requested_latency_valid = TRUE;
++    }
+ 
+     return result;
+ }
+-- 
+1.6.2.2
+

@@ -3,11 +3,37 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	11%{?dist}
+Release:	12%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
 Patch0:         pulseaudio-0.9.15-no-daemon-if-remote-desktop.patch
+Patch1: 0001-alsa-allow-configuration-of-fallback-device-strings.patch
+Patch2: 0001-util-if-NULL-is-passed-to-pa_path_get_filename-ju.patch
+Patch3: 0001-alsa-don-t-hit-an-assert-when-invalid-module-argume.patch
+Patch4: 0001-alsa-fix-wording-we-are-speaking-of-card-profiles.patch
+Patch5: 0001-alsa-initialize-buffer-size-before-number-of-period.patch
+Patch6: 0001-conf-remove-obsolete-module-idle-time-directive-fro.patch
+Patch7: 0001-core-make-sure-soft-mute-status-stays-in-sync-with.patch
+Patch8: 0001-endian-fix-LE-BE-order-for-24-bit-accessor-function.patch
+Patch9: 0001-log-print-file-name-only-when-we-have-it.patch
+Patch10: 0001-man-document-24bit-sample-types-in-man-page.patch
+Patch11: 0001-man-document-log-related-daemon.conf-options.patch
+Patch12: 0001-man-document-that-tsched-doesn-t-use-fragment-setti.patch
+Patch13: 0001-mutex-when-we-fail-to-fill-in-mutex-into-static-mut.patch
+Patch14: 0001-oss-don-t-deadlock-when-we-try-to-resume-an-OSS-dev.patch
+Patch15: 0001-simple-protocol-don-t-hit-an-assert-when-we-call-co.patch
+Patch16: 0001-idxset-add-enumeration-macro-PA_IDXSET_FOREACH.patch
+Patch17: 0001-rescue-streams-when-one-stream-move-fails-try-to-co.patch
+Patch18: 0001-sample-correctly-pass-s24-32-formats.patch
+Patch19: 0001-sample-util-fix-iteration-loop-when-adjusting-volum.patch
+Patch20: 0001-sample-util-properly-allocate-silence-block-for-s24.patch
+Patch21: 0001-sconv-fix-a-few-minor-conversion-issues.patch
+Patch22: 0001-shm-page-align-shm-size-when-mmap-ing-it.patch
+Patch23: 0001-alsa-be-a-bit-more-verbose-when-a-hwparam-call-fail.patch
+Patch24: 0001-rescue-make-we-don-t-end-up-in-an-endless-loop-when.patch
+Patch25: 0001-core-introduce-pa_-sink-source-_set_fixed_latency.patch
+Patch26: 0001-core-cache-requested-latency-only-when-we-are-runni.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -189,6 +215,31 @@ This package contains command line utilities for the PulseAudio sound server.
 %prep
 %setup -q -T -b0
 %patch0 -p1 
+%patch1 -p1 
+%patch2 -p1 
+%patch3 -p1 
+%patch4 -p1 
+%patch5 -p1 
+%patch6 -p1 
+%patch7 -p1 
+%patch8 -p1 
+%patch9 -p1 
+%patch10 -p1 
+%patch11 -p1 
+%patch12 -p1 
+%patch13 -p1 
+%patch14 -p1 
+%patch15 -p1 
+%patch16 -p1 
+%patch17 -p1 
+%patch18 -p1 
+%patch19 -p1 
+%patch20 -p1 
+%patch21 -p1 
+%patch22 -p1 
+%patch23 -p1 
+%patch25 -p1 
+%patch26 -p1 
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -409,6 +460,9 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Mon Jun 8 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-12
+- Fix a couple of issues, including #497742, #494851
+
 * Wed Apr 22 2009 Warren Togami <wtogami@redhat.com> 0.9.15-11
 - Bug #497214
   Do not start pulseaudio daemon if PULSE_SERVER directs pulse elsewhere.

@@ -1,0 +1,25 @@
+From b9f1af48d2402c197f640bfaed0ca169d2d38cbd Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sun, 19 Apr 2009 19:04:50 +0200
+Subject: [PATCH] log: print file name only when we have it
+
+---
+ src/pulsecore/log.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/pulsecore/log.c b/src/pulsecore/log.c
+index 60ea9c5..919ebe1 100644
+--- a/src/pulsecore/log.c
++++ b/src/pulsecore/log.c
+@@ -285,7 +285,7 @@ void pa_log_levelv_meta(
+ 
+     if ((_flags & PA_LOG_PRINT_META) && file && line > 0 && func)
+         pa_snprintf(location, sizeof(location), "[%s:%i %s()] ", file, line, func);
+-    else if (_flags & (PA_LOG_PRINT_META|PA_LOG_PRINT_FILE))
++    else if ((_flags & (PA_LOG_PRINT_META|PA_LOG_PRINT_FILE)) && file)
+         pa_snprintf(location, sizeof(location), "%s: ", pa_path_get_filename(file));
+     else
+         location[0] = 0;
+-- 
+1.6.2.2
+

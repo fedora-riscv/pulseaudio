@@ -1,0 +1,52 @@
+From 5be1cc52ffcc01c655f897fd7fdead4484bfd86b Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sun, 7 Jun 2009 00:44:49 +0200
+Subject: [PATCH] man: document log related daemon.conf options
+
+---
+ man/pulse-daemon.conf.5.xml.in |   21 +++++++++++++++++++--
+ 1 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/man/pulse-daemon.conf.5.xml.in b/man/pulse-daemon.conf.5.xml.in
+index a7c49a4..fe30016 100644
+--- a/man/pulse-daemon.conf.5.xml.in
++++ b/man/pulse-daemon.conf.5.xml.in
+@@ -268,9 +268,9 @@ USA.
+     </option>
+ 
+     <option>
+-      <p><opt>default-script-file=</opt> Load the default
++      <p><opt>load-default-script-file=</opt> Load the default
+       configuration script file as specified
+-      in <opt>default-script-file=</opt>. Defaults to "yes".</p>
++      in <opt>default-script-file=</opt>. Defaults to <opt>yes</opt>.</p>
+     </option>
+ 
+   </section>
+@@ -297,6 +297,23 @@ USA.
+       might alter this setting.</p>
+     </option>
+ 
++    <option>
++      <p><opt>log-meta=</opt> With each logged message log the code
++      location the message was generated from. Defaults to
++      <opt>no</opt>.</p>
++    </option>
++
++    <option>
++      <p><opt>log-time=</opt> With each logged messages log the
++      relative time since startup. Defaults to <opt>no</opt>.</p>
++    </option>
++
++    <option>
++      <p><opt>log-backtrace=</opt> When greater than 0, with each
++      logged message log a code stack trace up the the specified
++      number of stack frames. Defaults to <opt>0</opt>.</p>
++    </option>
++
+   </section>
+ 
+   <section name="Resource Limits">
+-- 
+1.6.2.2
+

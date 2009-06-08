@@ -1,0 +1,41 @@
+From 4129f5119407da54708d1504c0ffa2d0888fa804 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Fri, 1 May 2009 04:11:30 +0200
+Subject: [PATCH] alsa: don't hit an assert when invalid module arguments are passed
+
+---
+ src/modules/alsa/alsa-sink.c   |    3 ++-
+ src/modules/alsa/alsa-source.c |    3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 41e8b47..4d8dade 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -1770,7 +1770,8 @@ pa_sink *pa_alsa_sink_new(pa_module *m, pa_modargs *ma, const char*driver, pa_ca
+ 
+ fail:
+ 
+-    userdata_free(u);
++    if (u)
++        userdata_free(u);
+ 
+     return NULL;
+ }
+diff --git a/src/modules/alsa/alsa-source.c b/src/modules/alsa/alsa-source.c
+index 843f70b..d49035c 100644
+--- a/src/modules/alsa/alsa-source.c
++++ b/src/modules/alsa/alsa-source.c
+@@ -1621,7 +1621,8 @@ pa_source *pa_alsa_source_new(pa_module *m, pa_modargs *ma, const char*driver, p
+ 
+ fail:
+ 
+-    userdata_free(u);
++    if (u)
++        userdata_free(u);
+ 
+     return NULL;
+ }
+-- 
+1.6.2.2
+
