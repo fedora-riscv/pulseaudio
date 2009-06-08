@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	12%{?dist}
+Release:	13%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -34,6 +34,7 @@ Patch23: 0001-alsa-be-a-bit-more-verbose-when-a-hwparam-call-fail.patch
 Patch24: 0001-rescue-make-we-don-t-end-up-in-an-endless-loop-when.patch
 Patch25: 0001-core-introduce-pa_-sink-source-_set_fixed_latency.patch
 Patch26: 0001-core-cache-requested-latency-only-when-we-are-runni.patch
+Patch27: 0001-sample-fix-build-on-BE-archs.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -240,6 +241,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %patch23 -p1 
 %patch25 -p1 
 %patch26 -p1 
+%patch27 -p1 
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -460,6 +462,9 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Mon Jun 8 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-13
+- Fix build on BE archs
+
 * Mon Jun 8 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-12
 - Fix a couple of issues, including #497742, #494851
 
