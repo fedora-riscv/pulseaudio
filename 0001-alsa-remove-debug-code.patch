@@ -1,0 +1,25 @@
+From ad2a0ab40b107e2f3466c1baac4a86cf9fefca19 Mon Sep 17 00:00:00 2001
+From: Lennart Poettering <lennart@poettering.net>
+Date: Sun, 19 Apr 2009 19:25:42 +0200
+Subject: [PATCH] alsa: remove debug code
+
+---
+ src/modules/alsa/alsa-util.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-util.c b/src/modules/alsa/alsa-util.c
+index ddc3c77..18d6880 100644
+--- a/src/modules/alsa/alsa-util.c
++++ b/src/modules/alsa/alsa-util.c
+@@ -1832,8 +1832,6 @@ const char* pa_alsa_strerror(int errnum) {
+     if ((t = PA_STATIC_TLS_GET(cstrerror)))
+         pa_xfree(t);
+ 
+-    errnum = EINVAL;
+-    PA_DEBUG_TRAP;
+     original = snd_strerror(errnum);
+ 
+     if (!original) {
+-- 
+1.6.2.2
+

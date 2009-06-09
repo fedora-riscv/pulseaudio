@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	13%{?dist}
+Release:	14%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -29,12 +29,13 @@ Patch18: 0001-sample-correctly-pass-s24-32-formats.patch
 Patch19: 0001-sample-util-fix-iteration-loop-when-adjusting-volum.patch
 Patch20: 0001-sample-util-properly-allocate-silence-block-for-s24.patch
 Patch21: 0001-sconv-fix-a-few-minor-conversion-issues.patch
-Patch22: 0001-shm-page-align-shm-size-when-mmap-ing-it.patch
-Patch23: 0001-alsa-be-a-bit-more-verbose-when-a-hwparam-call-fail.patch
-Patch24: 0001-rescue-make-we-don-t-end-up-in-an-endless-loop-when.patch
-Patch25: 0001-core-introduce-pa_-sink-source-_set_fixed_latency.patch
-Patch26: 0001-core-cache-requested-latency-only-when-we-are-runni.patch
-Patch27: 0001-sample-fix-build-on-BE-archs.patch
+Patch22: 0001-alsa-be-a-bit-more-verbose-when-a-hwparam-call-fail.patch
+Patch23: 0001-rescue-make-we-don-t-end-up-in-an-endless-loop-when.patch
+Patch24: 0001-core-introduce-pa_-sink-source-_set_fixed_latency.patch
+Patch25: 0001-core-cache-requested-latency-only-when-we-are-runni.patch
+Patch26: 0001-sample-fix-build-on-BE-archs.patch
+Patch27: 0001-alsa-properly-convert-return-values-of-snd_strerror.patch
+Patch28: 0001-alsa-remove-debug-code.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -242,6 +243,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %patch25 -p1 
 %patch26 -p1 
 %patch27 -p1 
+%patch28 -p1 
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -462,6 +464,10 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Tue Jun 9 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-14
+- Fix mmap() related segfault
+- Closes #504750
+
 * Mon Jun 8 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-13
 - Fix build on BE archs
 
