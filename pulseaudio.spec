@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	15%{?dist}
+Release:	16%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -466,6 +466,9 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Tue Jul 28 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-16
+- Fix up patch
+
 * Tue Jul 28 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-15
 - Fix bug 510071
 
