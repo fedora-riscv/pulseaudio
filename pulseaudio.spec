@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	14%{?dist}
+Release:	15%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -36,6 +36,7 @@ Patch25: 0001-core-cache-requested-latency-only-when-we-are-runni.patch
 Patch26: 0001-sample-fix-build-on-BE-archs.patch
 Patch27: 0001-alsa-properly-convert-return-values-of-snd_strerror.patch
 Patch28: 0001-alsa-remove-debug-code.patch
+Patch29: 0001-Remove-exploitable-LD_BIND_NOW-hack-CVE-2009-1894.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -244,6 +245,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %patch26 -p1 
 %patch27 -p1 
 %patch28 -p1 
+%patch29 -p1
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -464,6 +466,9 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Tue Jul 28 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-15
+- Fix bug 510071
+
 * Tue Jun 9 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-14
 - Fix mmap() related segfault
 - Closes #504750
