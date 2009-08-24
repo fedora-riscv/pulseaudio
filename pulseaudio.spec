@@ -3,11 +3,12 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.10
-Release:	1%{?dist}.2
+Release:	1%{?dist}.3
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
 Patch0:         pulseaudio-0.9.10-CVE-2009-1894.patch
+Patch1:         pulseaudio-0.9.10-libtool.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: tcp_wrappers
@@ -151,6 +152,7 @@ This package contains command line utilities for the PulseAudio sound server.
 %prep
 %setup -q -T -b0
 %patch0 -p1 -b .CVE-2009-1894
+%patch1 -p1 -b .libtool
 
 %build
 %configure --disable-ltdl-install --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -370,6 +372,9 @@ fi
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Mon Aug 24 2009 Lubomir Rintel <lkundrak@v3.sk> 0.9.10-1.3
+- Work around broken libtool (#455842, Michal Schmidt)
+
 * Thu Jul 16 2009 Lubomir Rintel <lkundrak@v3.sk> 0.9.10-1.2
 - Fix CVE-2009-1894
 
