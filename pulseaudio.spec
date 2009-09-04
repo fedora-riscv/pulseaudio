@@ -3,7 +3,7 @@
 Name:		pulseaudio
 Summary: 	Improved Linux sound server
 Version:	0.9.15
-Release:	16%{?dist}
+Release:	17%{?dist}
 License:	GPLv2+
 Group:		System Environment/Daemons
 Source0:	http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -37,6 +37,11 @@ Patch26: 0001-sample-fix-build-on-BE-archs.patch
 Patch27: 0001-alsa-properly-convert-return-values-of-snd_strerror.patch
 Patch28: 0001-alsa-remove-debug-code.patch
 Patch29: 0001-Remove-exploitable-LD_BIND_NOW-hack-CVE-2009-1894.patch
+Patch30: 0001-memblock-rate-limit-Pool-full-message.patch
+Patch31: 0002-pacmd-handle-multi-word-commands-in-argv-properly.patch
+Patch32: 0003-protocol-native-compare-uint64_t-variable-with-uint6.patch
+Patch33: 0004-proplist-allow-setting-of-zero-length-data-propertie.patch
+Patch34: 0005-native-make-sure-clients-cannot-trigger-an-assert-by.patch
 URL:		http://pulseaudio.org
 BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -246,6 +251,11 @@ This package contains command line utilities for the PulseAudio sound server.
 %patch27 -p1 
 %patch28 -p1 
 %patch29 -p1
+%patch30 -p1
+%patch31 -p1 
+%patch32 -p1 
+%patch33 -p1 
+%patch34 -p1
 
 %build
 CFLAGS="-ggdb" %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-realtime-group=pulse-rt --with-access-group=pulse-access
@@ -466,6 +476,10 @@ groupadd -r pulse-access &>/dev/null || :
 %{_mandir}/man1/pax11publish.1.gz
 
 %changelog
+* Fri Sep 4 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-17
+- Backport 5 patches
+- Closes #520586
+
 * Tue Jul 28 2009 Lennart Poettering <lpoetter@redhat.com> 0.9.15-16
 - Fix up patch
 
