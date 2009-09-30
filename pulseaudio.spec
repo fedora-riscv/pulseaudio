@@ -1,6 +1,6 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
-Version:        0.9.18
+Version:        0.9.19
 Release:        1%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
@@ -437,6 +437,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Wed Sep 30 2009 Lennart Poettering <lpoetter@redhat.com> - 0.9.19-1
+- New release
+
 * Sat Sep 19 2009 Lennart Poettering <lpoetter@redhat.com> - 0.9.18-1
 - New release
 
