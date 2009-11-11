@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
-Version:        0.9.19
-Release:        2%{?dist}
+Version:        0.9.20
+Release:        1%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -436,6 +436,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Wed Nov 11 2009 Lennart Poettering <lpoetter@redhat.com> - 0.9.20-1
+- New release
+
 * Wed Nov 04 2009 Warren Togami <wtogami@redhat.com> - 0.9.19-2
 - Bug #532583 gdm should not require pulseaudio
 
