@@ -1,6 +1,6 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
-Version:        0.9.20
+Version:        0.9.21
 Release:        1%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
@@ -218,6 +218,9 @@ rm $RPM_BUILD_ROOT%{_libdir}/pulse-%{version}/modules/module-oss.so
 rm $RPM_BUILD_ROOT%{_libdir}/pulse-%{version}/modules/module-detect.so
 rm $RPM_BUILD_ROOT%{_libdir}/pulse-%{version}/modules/module-pipe-sink.so
 rm $RPM_BUILD_ROOT%{_libdir}/pulse-%{version}/modules/module-pipe-source.so
+rm $RPM_BUILD_ROOT%{_libdir}/pulse-%{version}/modules/module-device-manager.so
+rm $RPM_BUILD_ROOT%{_bindir}/start-pulseaudio-kde
+rm $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
 # preserve time stamps, for multilib's sake
 touch -r src/daemon/daemon.conf.in $RPM_BUILD_ROOT%{_sysconfdir}/pulse/daemon.conf
 touch -r src/daemon/default.pa.in $RPM_BUILD_ROOT%{_sysconfdir}/pulse/default.pa
@@ -436,6 +439,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Mon Nov 23 2009 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-1
+- New release
+
 * Wed Nov 11 2009 Lennart Poettering <lpoetter@redhat.com> - 0.9.20-1
 - New release
 
