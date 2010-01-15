@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -25,10 +25,14 @@ BuildRequires:  glib2-devel
 BuildRequires:  gtk2-devel
 BuildRequires:  GConf2-devel
 BuildRequires:  avahi-devel
+%if 0%{?rhel} == 0
 BuildRequires:  lirc-devel
 BuildRequires:  jack-audio-connection-kit-devel
+%endif
 BuildRequires:  libatomic_ops-devel
+%ifnarch s390 s390x
 BuildRequires:  bluez-libs-devel
+%endif
 BuildRequires:  libXt-devel
 BuildRequires:  xorg-x11-proto-devel
 BuildRequires:  libXtst-devel
@@ -64,6 +68,7 @@ Obsoletes:      esound
 A compatibility script that allows applications to call /usr/bin/esd
 and start PulseAudio with EsounD protocol modules.
 
+%if 0%{?rhel} == 0
 %package module-lirc
 Summary:        LIRC support for the PulseAudio sound server
 Group:          System Environment/Daemons
@@ -71,6 +76,7 @@ Requires:       %{name} = %{version}-%{release}
 
 %description module-lirc
 LIRC volume control module for the PulseAudio sound server.
+%endif
 
 %package module-x11
 Summary:        X11 support for the PulseAudio sound server
@@ -90,6 +96,7 @@ Requires:       pulseaudio-utils
 %description module-zeroconf
 Zeroconf publishing module for the PulseAudio sound server.
 
+%ifnarch s390 s390x
 %package module-bluetooth
 Summary:        Bluetooth support for the PulseAudio sound server
 Group:          System Environment/Daemons
@@ -102,7 +109,9 @@ Contains Bluetooth audio (A2DP/HSP/HFP) support for the PulseAudio sound server.
 Also contains a module that can be used to automatically turn down the volume if
 a bluetooth mobile phone leaves the proximity or turn it up again if it enters the
 proximity again
+%endif
 
+%if 0%{?rhel} == 0
 %package module-jack
 Summary:        JACK support for the PulseAudio sound server
 Group:          System Environment/Daemons
@@ -110,6 +119,7 @@ Requires:       %{name} = %{version}-%{release}
 
 %description module-jack
 JACK sink and source modules for the PulseAudio sound server.
+%endif
 
 %package module-gconf
 Summary:        GConf support for the PulseAudio sound server
@@ -168,9 +178,11 @@ Group:          Development/Libraries
 Requires:       %{name}-libs = %{version}-%{release}
 Requires:       %{name}-libs-glib2 = %{version}-%{release}
 Requires:       %{name}-libs-zeroconf = %{version}-%{release}
-Requires:   	pkgconfig 
+Requires:   	pkgconfig
 Requires:	glib2-devel
+%if 0%{?rhel} == 0
 Requires:	vala
+%endif
 Provides:       pulseaudio-lib-devel
 Obsoletes:      pulseaudio-lib-devel
 
@@ -338,9 +350,11 @@ exit 0
 %{_bindir}/esdcompat
 %{_mandir}/man1/esdcompat.1.gz
 
+%if 0%{?rhel} == 0
 %files module-lirc
 %defattr(-,root,root)
 %{_libdir}/pulse-%{version}/modules/module-lirc.so
+%endif
 
 %files module-x11
 %defattr(-,root,root)
@@ -362,11 +376,14 @@ exit 0
 %{_libdir}/pulse-%{version}/modules/module-raop-discover.so
 %{_libdir}/pulse-%{version}/modules/module-raop-sink.so
 
+%if 0%{?rhel} == 0
 %files module-jack
 %defattr(-,root,root)
 %{_libdir}/pulse-%{version}/modules/module-jack-sink.so
 %{_libdir}/pulse-%{version}/modules/module-jack-source.so
+%endif
 
+%ifnarch s390 s390x
 %files module-bluetooth
 %defattr(-,root,root)
 %{_libdir}/pulse-%{version}/modules/module-bluetooth-proximity.so
@@ -376,6 +393,7 @@ exit 0
 %{_libdir}/pulse-%{version}/modules/libbluetooth-sbc.so
 %{_libdir}/pulse-%{version}/modules/libbluetooth-util.so
 %{_libexecdir}/pulse/proximity-helper
+%endif
 
 %files module-gconf
 %defattr(-,root,root)
