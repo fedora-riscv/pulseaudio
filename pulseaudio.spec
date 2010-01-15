@@ -521,7 +521,7 @@ exit 0
 
 %changelog
 * Fri Jan 15 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-3
-- backport 30 fixes from upstream git
+- backport 31 fixes from upstream git
 - sync spec file with rhel
 
 * Wed Dec 02 2009 Rex Dieter <rdieter@fedoraproject.org> - 0.9.21-2
