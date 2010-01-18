@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        3%{?dist}
+Release:        4%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -37,6 +37,7 @@ Patch27: 0028-udev-Use-SOUND_CLASS-instead-of-SOUND_FORM_FACTOR-wh.patch
 Patch28: 0029-More-src-pulsecore-cpu-arm.c-FTBFS-fixes.patch
 Patch29: 0030-Fix-the-following-warnings-which-now-cause-buildd-fa.patch
 Patch30: 0031-libpulse-Store-pa_stream-pointers-to-hashmaps-instea.patch
+Patch31: 0001-native-rework-handling-of-seeks-that-depend-on-varia.patch
 URL:            http://pulseaudio.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -274,7 +275,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch28 -p1
 %patch29 -p1
 %patch30 -p1
-
+%patch31 -p1
 
 %build
 %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --disable-hal
@@ -520,6 +521,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Sun Jan 17 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-4
+- fix buffer flushing
+
 * Fri Jan 15 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-3
 - backport 31 fixes from upstream git
 - sync spec file with rhel
