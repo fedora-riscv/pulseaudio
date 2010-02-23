@@ -1,7 +1,7 @@
 From 11688eca4b2beb7aa1adcd4aa9a3ee933f7385fb Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 8 Jan 2010 22:18:15 +0100
-Subject: [PATCH 04/31] bluetooth: destruct stream only if it is not already destructed
+Subject: [PATCH 04/62] bluetooth: destruct stream only if it is not already destructed
 
 https://bugzilla.redhat.com/show_bug.cgi?id=551842
 ---
@@ -52,5 +52,5 @@ index 19676df..2bbae41 100644
      if (u->read_smoother) {
          pa_smoother_free(u->read_smoother);
 -- 
-1.6.6
+1.7.0
 

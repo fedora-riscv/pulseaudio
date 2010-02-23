@@ -1,7 +1,7 @@
 From 4bcb1a909f936a63628273e7d35726bc64785eeb Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 13 Jan 2010 17:24:37 +0100
-Subject: [PATCH 10/31] bluetooth: fix invalid memory access
+Subject: [PATCH 10/62] bluetooth: fix invalid memory access
 
 When an GetProperties() reply arrives after we already deleted the
 device structure for it make sure we don't accidentaly touch the
@@ -32,5 +32,5 @@ index 795d510..b2c0429 100644
      valid = dbus_message_get_type(r) == DBUS_MESSAGE_TYPE_ERROR ? -1 : 1;
  
 -- 
-1.6.6
+1.7.0
 

@@ -1,7 +1,7 @@
 From 52c66b47664d47154b2c8368e32beef27d4b2d03 Mon Sep 17 00:00:00 2001
 From: Tanu Kaskinen <ext-tanu.kaskinen@nokia.com>
 Date: Thu, 3 Dec 2009 13:22:05 +0200
-Subject: [PATCH 31/31] libpulse: Store pa_stream pointers to hashmaps instead of dynarrays.
+Subject: [PATCH 31/62] libpulse: Store pa_stream pointers to hashmaps instead of dynarrays.
 
 Since the stream identifiers (channels) are monotonically growing integer, it
 isn't a good idea to use them as index to a dynamic array, because the array
@@ -176,5 +176,5 @@ index daeb53a..ab8f8f4 100644
      create_stream_complete(s);
  
 -- 
-1.6.6
+1.7.0
 

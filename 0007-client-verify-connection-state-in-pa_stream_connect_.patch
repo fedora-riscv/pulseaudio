@@ -1,7 +1,7 @@
 From 78811c5653d0ba508b6558ba4578b61da26c60cf Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 12 Jan 2010 03:01:27 +0100
-Subject: [PATCH 07/31] client: verify connection state in pa_stream_connect_upload()
+Subject: [PATCH 07/62] client: verify connection state in pa_stream_connect_upload()
 
 Make suer we check the connection state before going on, so that we can
 rely that s->context->pstream is properly initialized.
@@ -24,5 +24,5 @@ index 2a7602f..b2169b6 100644
      if (!(name = pa_proplist_gets(s->proplist, PA_PROP_EVENT_ID)))
          name = pa_proplist_gets(s->proplist, PA_PROP_MEDIA_NAME);
 -- 
-1.6.6
+1.7.0
 

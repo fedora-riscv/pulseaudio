@@ -1,7 +1,7 @@
 From acb4996203f6723d92a9b0df4e60db83c65116fc Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Thu, 14 Jan 2010 02:06:52 +0100
-Subject: [PATCH 18/31] udev: rework modem detection a bit
+Subject: [PATCH 18/62] udev: rework modem detection a bit
 
 Check every single pcm device of a card whether it is a modem.
 ---
@@ -178,5 +178,5 @@ index 1fe9fdc..b8568b2 100644
      struct userdata *u = NULL;
      pa_modargs *ma;
 -- 
-1.6.6
+1.7.0
 

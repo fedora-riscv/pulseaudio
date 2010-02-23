@@ -1,7 +1,7 @@
 From e7d9f891e2a8e6b670098b80315ca1f0010c35ca Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 8 Jan 2010 23:44:42 +0100
-Subject: [PATCH 05/31] bluetooth: don't hit an assert if latency is queried for a stooped recording stream
+Subject: [PATCH 05/62] bluetooth: don't hit an assert if latency is queried for a stooped recording stream
 
 https://bugzilla.redhat.com/show_bug.cgi?id=537422
 ---
@@ -31,5 +31,5 @@ index 2bbae41..d6868b8 100644
          }
  
 -- 
-1.6.6
+1.7.0
 

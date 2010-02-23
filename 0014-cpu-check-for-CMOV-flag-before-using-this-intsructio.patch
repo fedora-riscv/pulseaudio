@@ -1,7 +1,7 @@
 From 170812755e0ac235ed2b7182ef637eb317d8b2b2 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 13 Jan 2010 20:31:17 +0100
-Subject: [PATCH 14/31] cpu: check for CMOV flag before using this intsruction in assembly
+Subject: [PATCH 14/62] cpu: check for CMOV flag before using this intsruction in assembly
 
 http://pulseaudio.org/ticket/776
 ---
@@ -76,5 +76,5 @@ index 46923ed..e50ebee 100644
  
          pa_set_volume_func (PA_SAMPLE_S16NE, (pa_do_volume_func_t) pa_volume_s16ne_mmx);
 -- 
-1.6.6
+1.7.0
 

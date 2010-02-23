@@ -1,7 +1,7 @@
 From fa64230107bd348ceda271dc9db74765c694d311 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 15 Jan 2010 01:25:42 +0100
-Subject: [PATCH 24/31] client: implement $PULSE_LATENCY_MSEC
+Subject: [PATCH 24/62] client: implement $PULSE_LATENCY_MSEC
 
 This allows easy overriding of a clients latency setting for debugging
 purposes.
@@ -103,5 +103,5 @@ index 79b2868..daeb53a 100644
  
      if (s->direction == PA_STREAM_PLAYBACK)
 -- 
-1.6.6
+1.7.0
 

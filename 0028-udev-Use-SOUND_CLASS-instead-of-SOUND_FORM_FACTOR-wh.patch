@@ -1,7 +1,7 @@
 From 8c7148a4eaecd687a004b0611748452fd4b41e92 Mon Sep 17 00:00:00 2001
 From: Daniel T Chen <crimsun@ubuntu.com>
 Date: Mon, 4 Jan 2010 21:53:36 -0500
-Subject: [PATCH 28/31] udev: Use SOUND_CLASS instead of SOUND_FORM_FACTOR when checking for modem
+Subject: [PATCH 28/62] udev: Use SOUND_CLASS instead of SOUND_FORM_FACTOR when checking for modem
 
 The fact whether an ALSA card is a modem is stored in the SOUND_CLASS,
 not the SOUND_FORM_FACTOR property. So read it from there.
@@ -25,5 +25,5 @@ index b8568b2..3cf3e58 100644
          pa_log_debug("Ignoring %s, because it is a modem.", udev_device_get_devpath(dev));
          return;
 -- 
-1.6.6
+1.7.0
 

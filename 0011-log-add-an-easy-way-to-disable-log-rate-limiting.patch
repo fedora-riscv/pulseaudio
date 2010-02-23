@@ -1,7 +1,7 @@
 From 21b484e056be445fdaf00f91ce50bc40b1ac9623 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 13 Jan 2010 17:35:04 +0100
-Subject: [PATCH 11/31] log: add an easy way to disable log rate limiting
+Subject: [PATCH 11/62] log: add an easy way to disable log rate limiting
 
 Should help with debuggin bugs like:
 
@@ -150,5 +150,5 @@ index 8c21ee6..0c5a317 100644
      return pa_ratelimit_test(&ratelimit);
  }
 -- 
-1.6.6
+1.7.0
 
