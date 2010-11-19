@@ -1,7 +1,7 @@
 From 366e6d7e90d3bebc98a1af3cfb04b4cfc8cff6f5 Mon Sep 17 00:00:00 2001
 From: Arun Raghavan <arun.raghavan@collabora.co.uk>
 Date: Sun, 6 Dec 2009 12:20:53 +0530
-Subject: [PATCH 21/31] Mark shared variables as volatile
+Subject: [PATCH 21/62] Mark shared variables as volatile
 
 'n_waiting' and 'n_waiting_for_accept' may be accessed from mulitple
 threads, and thus need to be marked as volatile to suppres certain
@@ -51,5 +51,5 @@ index a2b98ce..14ed926 100644
      pa_assert(m);
  
 -- 
-1.6.6
+1.7.0
 

@@ -1,7 +1,7 @@
 From 540ec7b961256d6c7702448ca995f61268064190 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 13 Jan 2010 20:30:36 +0100
-Subject: [PATCH 13/31] alsa: ignore volume changes from the hw if we are not on the active console
+Subject: [PATCH 13/62] alsa: ignore volume changes from the hw if we are not on the active console
 
 ---
  src/modules/alsa/alsa-sink.c   |    3 +++
@@ -37,5 +37,5 @@ index 157698e..f8b583e 100644
          pa_source_get_volume(u->source, TRUE);
          pa_source_get_mute(u->source, TRUE);
 -- 
-1.6.6
+1.7.0
 

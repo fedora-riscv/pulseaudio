@@ -1,7 +1,7 @@
 From 73ae1fce001253677b7ab633f42d3c3300fe5cf5 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 12 Jan 2010 23:03:04 +0100
-Subject: [PATCH 09/31] once: make once related variables volatile
+Subject: [PATCH 09/62] once: make once related variables volatile
 
 ---
  src/pulsecore/flist.h        |    2 +-
@@ -87,5 +87,5 @@ index 25eace6..60c1267 100644
          .once = PA_ONCE_INIT,                                           \
          .tls = NULL                                                     \
 -- 
-1.6.6
+1.7.0
 

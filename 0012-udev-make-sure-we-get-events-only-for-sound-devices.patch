@@ -1,7 +1,7 @@
 From 9b37dce4223aaf7a5f48b04b52c89b46ad97cf73 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Wed, 13 Jan 2010 19:41:44 +0100
-Subject: [PATCH 12/31] udev: make sure we get events only for sound devices
+Subject: [PATCH 12/62] udev: make sure we get events only for sound devices
 
 ---
  src/modules/module-udev-detect.c |    5 +++++
@@ -24,5 +24,5 @@ index 7508d9a..58635a5 100644
      if (udev_monitor_enable_receiving(u->monitor) < 0) {
          pa_log("Failed to enable monitor: %s", pa_cstrerror(errno));
 -- 
-1.6.6
+1.7.0
 

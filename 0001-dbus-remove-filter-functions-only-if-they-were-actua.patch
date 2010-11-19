@@ -1,7 +1,7 @@
 From c41ee00893b6b0d5cc48ee041b8e4835eac548f0 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 8 Jan 2010 20:06:21 +0100
-Subject: [PATCH 01/31] dbus: remove filter functions only if they were actually set before
+Subject: [PATCH 01/62] dbus: remove filter functions only if they were actually set before
 
 This fixes an assert when destructing modules that have not been fully
 initialized.
@@ -285,5 +285,5 @@ index b371bfc..c3ebf74 100644
  
      pa_strlist *server_list;
 -- 
-1.6.6
+1.7.0
 

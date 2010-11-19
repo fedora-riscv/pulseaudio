@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -37,7 +37,37 @@ Patch27: 0028-udev-Use-SOUND_CLASS-instead-of-SOUND_FORM_FACTOR-wh.patch
 Patch28: 0029-More-src-pulsecore-cpu-arm.c-FTBFS-fixes.patch
 Patch29: 0030-Fix-the-following-warnings-which-now-cause-buildd-fa.patch
 Patch30: 0031-libpulse-Store-pa_stream-pointers-to-hashmaps-instea.patch
-Patch31: 0001-native-rework-handling-of-seeks-that-depend-on-varia.patch 
+Patch31: 0032-native-rework-handling-of-seeks-that-depend-on-varia.patch
+Patch32: 0033-core-Fix-macro-typo-PA_SINK_IS_LINKED-PA_SINK_INPUT_.patch
+Patch33: 0034-alsa-cover-Desktop-Speaker-mixer-elements.patch
+Patch34: 0035-alsa-cover-Shared-Mic-Line-in-Analog-Source.patch
+Patch35: 0036-alsa-cover-Internal-Mic-elements.patch
+Patch36: 0037-alsa-use-default-output-port-names.patch
+Patch37: 0038-build-sys-add-gobject-to-build-dependencies.patch
+Patch38: 0039-padsp-emulate-dev-audio-too.patch
+Patch39: 0040-dbus-first-restart-timer-then-dispatch-it.patch
+Patch40: 0041-fdsem-be-more-verbose-when-reading-from-eventfd-fail.patch
+Patch41: 0042-pacat-always-fully-fulfill-write-requests.patch
+Patch42: 0043-pacmd-store-away-fd-type.patch
+Patch43: 0044-pacmd-don-t-enter-busy-loop-when-reading-from-stdin-.patch
+Patch44: 0045-shm-don-t-complain-about-missing-SHM-segments.patch
+Patch45: 0046-vala-fix-definition-of-INVALID_INDEX.patch
+Patch46: 0047-vala-fix-definition-of-the-GLib-mainloop-adapter.patch
+Patch47: 0048-Add-missing-profile-and-alsa-mixer-paths-to-src-Make.patch
+Patch48: 0049-channelmap-Use-Subwoofer-as-pretty-name-for-LFE.patch
+Patch49: 0050-vala-fix-wrapping-of-port-setting-calls.patch
+Patch50: 0051-proplist-explicitly-mention-a-role-test.patch
+Patch51: 0052-stream-restore-be-a-little-bit-more-verbose-why-we-d.patch
+Patch52: 0053-sample-cache-use-the-sample-name-as-unmodified-fallb.patch
+Patch53: 0054-scache-when-playing-a-sample-from-the-cache-make-sur.patch
+Patch54: 0055-pacat-pass-buffer_attr-to-recording-streams-too.patch
+Patch55: 0056-suspend-on-idle-resume-audio-device-even-for-initial.patch
+Patch56: 0057-native-improve-logging-for-buffer_attrs.patch
+Patch57: 0058-alsa-util-strip-spaces-from-ALSA-card-pcm-names.patch
+Patch58: 0059-alsa-reset-max_rewind-max_request-while-suspending.patch
+Patch59: 0060-core-util-introduce-generic-function-pa_strip.patch
+Patch60: 0061-esd-simple-use-pa_memblockq_pop_missing.patch
+Patch61: 0062-core-rework-how-stream-volumes-affect-sink-volumes.patch
 URL:            http://pulseaudio.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -77,6 +107,9 @@ BuildRequires:  libtdb-devel
 BuildRequires:  speex-devel >= 1.2
 BuildRequires:  libasyncns-devel
 BuildRequires:  libudev-devel >= 143
+BuildRequires:  autoconf
+BuildRequires:  automake
+BuildRequires:  libtool
 Obsoletes:      pulseaudio-devel
 Obsoletes:      pulseaudio-core-libs
 Provides:       pulseaudio-core-libs
@@ -276,8 +309,39 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch29 -p1
 %patch30 -p1
 %patch31 -p1
+%patch32 -p1
+%patch33 -p1
+%patch34 -p1
+%patch35 -p1
+%patch36 -p1
+%patch37 -p1
+%patch38 -p1
+%patch39 -p1
+%patch40 -p1
+%patch41 -p1
+%patch42 -p1
+%patch43 -p1
+%patch44 -p1
+%patch45 -p1
+%patch46 -p1
+%patch47 -p1
+%patch48 -p1
+%patch49 -p1
+%patch50 -p1
+%patch51 -p1
+%patch52 -p1
+%patch53 -p1
+%patch54 -p1
+%patch55 -p1
+%patch56 -p1
+%patch57 -p1
+%patch58 -p1
+%patch59 -p1
+%patch60 -p1
+%patch61 -p1
 
 %build
+autoreconf
 %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --disable-hal
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 make LIBTOOL=/usr/bin/libtool %{?_smp_mflags}
@@ -521,6 +585,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Tue Feb 23 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-6
+- backport another 30 fixes from upstream git
+
 * Sun Jan 17 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-5
 - fix buffer flushing
 

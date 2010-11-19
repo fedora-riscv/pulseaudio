@@ -1,7 +1,7 @@
 From bf50dc42306857e361267d2ad39b737ad05b8604 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Tue, 12 Jan 2010 03:01:14 +0100
-Subject: [PATCH 06/31] client: detect forking in sample cache API, too
+Subject: [PATCH 06/62] client: detect forking in sample cache API, too
 
 ---
  src/pulse/scache.c |    9 +++++++--
@@ -83,5 +83,5 @@ index 793277a..79b2868 100644
  #include <pulse/rtclock.h>
  #include <pulse/xmalloc.h>
 -- 
-1.6.6
+1.7.0
 

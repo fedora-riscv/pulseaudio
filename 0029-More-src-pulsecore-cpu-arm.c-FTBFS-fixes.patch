@@ -1,7 +1,7 @@
 From 09c416e11fe4f53c468f68ad0a67f4696241050a Mon Sep 17 00:00:00 2001
 From: Daniel T Chen <crimsun@ubuntu.com>
 Date: Wed, 16 Dec 2009 23:55:05 -0500
-Subject: [PATCH 29/31] More src/pulsecore/cpu-arm.c FTBFS fixes
+Subject: [PATCH 29/62] More src/pulsecore/cpu-arm.c FTBFS fixes
 
 Fix missing argument to pa_read(), and be consistent with declaration of
 state variable in pa_cpu_init_arm().
@@ -35,5 +35,5 @@ index 453b784..61299cc 100644
          while ((current = pa_split_spaces (line, &state))) {
              if (!strcmp (current, "vfp"))
 -- 
-1.6.6
+1.7.0
 

@@ -1,7 +1,7 @@
 From 291cd096015d540d5064bfae94a66adc3bc3fc64 Mon Sep 17 00:00:00 2001
 From: Colin Guthrie <cguthrie@mandriva.org>
 Date: Wed, 13 Jan 2010 23:47:21 +0000
-Subject: [PATCH 16/31] alsa: Cover the 'Int Mic Boost' element.
+Subject: [PATCH 16/62] alsa: Cover the 'Int Mic Boost' element.
 
 This is not 100% ideal as we have not way to tie specific boosts to specific
 inputs and this particular chipset (as noted in #772) appears to
@@ -32,5 +32,5 @@ index b35e7af..4663305 100644
 +[Option Int Mic Boost:off]
 +name = input-boost-off
 -- 
-1.6.6
+1.7.0
 

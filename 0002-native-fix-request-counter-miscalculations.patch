@@ -1,7 +1,7 @@
 From 8d356659e69556fa25d0579a66084f820683e2b8 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Fri, 8 Jan 2010 20:07:34 +0100
-Subject: [PATCH 02/31] native: fix request counter miscalculations
+Subject: [PATCH 02/62] native: fix request counter miscalculations
 
 Do not subtract bytes the client sends us beyond what we requested from
 our missing bytes counter.
@@ -271,5 +271,5 @@ index 6e35762..b7b3f59 100644
      if (m <= 0)
          return;
 -- 
-1.6.6
+1.7.0
 

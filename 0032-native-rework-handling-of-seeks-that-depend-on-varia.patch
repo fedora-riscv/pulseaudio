@@ -1,7 +1,7 @@
 From 84782f24c5f43456430c796bd12f9face24f0573 Mon Sep 17 00:00:00 2001
 From: Lennart Poettering <lennart@poettering.net>
 Date: Mon, 18 Jan 2010 01:33:04 +0100
-Subject: [PATCH] native: rework handling of seeks that depend on variables the client does not know anything about
+Subject: [PATCH 32/62] native: rework handling of seeks that depend on variables the client does not know anything about
 
 All seeks/flushes that depend on the playback buffer read pointer cannot
 be accounted for properly in the client since it does not know the
@@ -162,5 +162,5 @@ index aa84ccb..7acb25f 100644
      } else if (i->thread_info.rewrite_nbytes > 0) {
          size_t max_rewrite, amount;
 -- 
-1.6.6
+1.7.0
 

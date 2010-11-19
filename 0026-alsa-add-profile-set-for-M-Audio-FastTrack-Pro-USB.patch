@@ -1,7 +1,7 @@
 From 66e1a2d05139d7968d41d9f1a88c22093cdd04d5 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?David=20K=C3=A5gedal?= <davidk@lysator.liu.se>
 Date: Tue, 5 Jan 2010 20:14:11 +0100
-Subject: [PATCH 26/31] alsa: add profile set for M-Audio FastTrack Pro USB
+Subject: [PATCH 26/62] alsa: add profile set for M-Audio FastTrack Pro USB
 
 ---
  .../alsa/mixer/profile-sets/90-pulseaudio.rules    |    1 +
@@ -112,5 +112,5 @@ index 0000000..75f5112
 +priority = 2
 +skip-probe = yes
 -- 
-1.6.6
+1.7.0
 

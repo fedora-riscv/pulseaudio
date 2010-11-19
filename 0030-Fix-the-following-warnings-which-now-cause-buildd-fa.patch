@@ -1,7 +1,7 @@
 From fd5c802ecb5ae5ed9b294422410761126a37d1b3 Mon Sep 17 00:00:00 2001
 From: Daniel T Chen <crimsun@ubuntu.com>
 Date: Wed, 16 Dec 2009 22:53:18 -0500
-Subject: [PATCH 30/31] Fix the following warnings (which now cause buildd failures in Ubuntu 10.04):
+Subject: [PATCH 30/62] Fix the following warnings (which now cause buildd failures in Ubuntu 10.04):
 
 pulsecore/cpu-arm.c: In function 'get_cpuinfo':
 pulsecore/cpu-arm.c:70: warning: implicit declaration of function 'pa_read' [-Wimplicit-function-declaration]
@@ -29,5 +29,5 @@ index 61299cc..56d0bbc 100644
  
  #include "cpu-arm.h"
 -- 
-1.6.6
+1.7.0
 
