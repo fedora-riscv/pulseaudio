@@ -68,6 +68,7 @@ Patch58: 0059-alsa-reset-max_rewind-max_request-while-suspending.patch
 Patch59: 0060-core-util-introduce-generic-function-pa_strip.patch
 Patch60: 0061-esd-simple-use-pa_memblockq_pop_missing.patch
 Patch61: 0062-core-rework-how-stream-volumes-affect-sink-volumes.patch
+Patch62: 0063-legacy-dir.patch
 URL:            http://pulseaudio.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -339,6 +340,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch59 -p1
 %patch60 -p1
 %patch61 -p1
+%patch62 -p1 -b .legacyDir
 
 %build
 autoreconf
