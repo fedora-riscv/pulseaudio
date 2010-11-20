@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -588,6 +588,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Sun Nov 21 2010 Matěj Cepl <mcepl@redhat.com> - 0.9.21-6
+- Fix racy condition with patch by jkratoch (RHBZ# 643296).
+
 * Tue Feb 23 2010 Lennart Poettering <lpoetter@redhat.com> - 0.9.21-5
 - backport another 30 fixes from upstream git
 
