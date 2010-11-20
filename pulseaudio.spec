@@ -108,6 +108,7 @@ BuildRequires:  libtdb-devel
 BuildRequires:  speex-devel >= 1.2
 BuildRequires:  libasyncns-devel
 BuildRequires:  libudev-devel >= 143
+BuildRequires:  dbus-devel
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  libtool
