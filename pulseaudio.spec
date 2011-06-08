@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        7%{?dist}
+Release:        8%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -69,6 +69,7 @@ Patch59: 0060-core-util-introduce-generic-function-pa_strip.patch
 Patch60: 0061-esd-simple-use-pa_memblockq_pop_missing.patch
 Patch61: 0062-core-rework-how-stream-volumes-affect-sink-volumes.patch
 Patch62: 0063-legacy-dir.patch
+Patch63: 0063-pulseaudio-0.9.21-svolume-arm.patch
 URL:            http://pulseaudio.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -342,6 +343,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch60 -p1
 %patch61 -p1
 %patch62 -p1 -b .legacyDir
+%patch63 -p1
 
 %build
 autoreconf
@@ -588,6 +590,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Wed Jun 08 2011 Paul Whalen <paul.whalen@senecac.on.ca> - 0.9.21-8
+- compile svolume_arm.c with -march=armv6
+
 * Sun Nov 21 2010 Matěj Cepl <mcepl@redhat.com> - 0.9.21-7
 - Fix racy condition with patch by jkratoch (RHBZ# 643296).
 
