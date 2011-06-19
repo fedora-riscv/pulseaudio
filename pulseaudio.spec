@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.21
-Release:        7%{?dist}
+Release:        8%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -590,7 +590,7 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
-* Sun Jun 19 2011 Peter Robinson <pbrobinson@gmail.com> - 0.9.21.-7
+* Sun Jun 19 2011 Peter Robinson <pbrobinson@gmail.com> - 0.9.21-8
 - compile svolume_arm.c with -march=armv6
 
 * Sun Nov 21 2010 Matěj Cepl <mcepl@redhat.com> - 0.9.21-7
