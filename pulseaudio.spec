@@ -343,7 +343,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch60 -p1
 %patch61 -p1
 %patch62 -p1 -b .legacyDir
-%patch62 -p1 -b .arm
+%patch63 -p1 -b .arm
 
 %build
 autoreconf
