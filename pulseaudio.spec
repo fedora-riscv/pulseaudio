@@ -69,6 +69,7 @@ Patch59: 0060-core-util-introduce-generic-function-pa_strip.patch
 Patch60: 0061-esd-simple-use-pa_memblockq_pop_missing.patch
 Patch61: 0062-core-rework-how-stream-volumes-affect-sink-volumes.patch
 Patch62: 0063-legacy-dir.patch
+Patch63: 0063-pulseaudio-0.9.21-svolume-arm.patch
 URL:            http://pulseaudio.org/
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  m4
@@ -342,6 +343,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch60 -p1
 %patch61 -p1
 %patch62 -p1 -b .legacyDir
+%patch62 -p1 -b .arm
 
 %build
 autoreconf
@@ -588,6 +590,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Sun Jun 19 2011 Peter Robinson <pbrobinson@gmail.com> - 0.9.21.-7
+- compile svolume_arm.c with -march=armv6
+
 * Sun Nov 21 2010 Matěj Cepl <mcepl@redhat.com> - 0.9.21-7
 - Fix racy condition with patch by jkratoch (RHBZ# 643296).
 
