@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        0.9.23
-Release:        1%{?dist}
+Release:        2%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.gz
@@ -345,7 +345,9 @@ exit 0
 %{_libdir}/pulse-%{version}/modules/module-intended-roles.so
 %{_libdir}/pulse-%{version}/modules/module-rygel-media-server.so
 %{_libdir}/pulse-%{version}/modules/module-echo-cancel.so
+%if 0%{?rhel} == 0
 %{_libdir}/pulse-%{version}/modules/module-jackdbus-detect.so
+%endif
 %dir %{_datadir}/pulseaudio/
 %dir %{_datadir}/pulseaudio/alsa-mixer/
 %{_datadir}/pulseaudio/alsa-mixer/paths/
@@ -473,6 +475,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Tue Dec 13 2011 Adam Jackson <ajax@redhat.com> 0.9.23-2
+- Fix RHEL build
+
 * Mon Aug 15 2011 Matthias Clasen <mclasen@redhat.com> - 0.9.23-1
 - Update to 0.9.23
 
