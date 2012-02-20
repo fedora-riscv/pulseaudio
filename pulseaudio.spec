@@ -460,7 +460,7 @@ exit 0
 
 %changelog
 * Mon Feb 20 2012 Lennart Poettering <lpoetter@redhat.com> - 1.1-7
-- Temporary fix for CK/systemd move
+- Temporary fix for CK/systemd move (#794690)
 
 * Mon Jan 23 2012 Dan Horák <dan@danny.cz> - 1.1-6
 - rebuilt for json-c-0.9-4.fc17
