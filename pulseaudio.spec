@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        1.1
-Release:        6%{?dist}
+Release:        7%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.xz
@@ -232,6 +232,8 @@ touch -r man/pulse-daemon.conf.5.xml.in $RPM_BUILD_ROOT%{_mandir}/man5/pulse-dae
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/pulse
 install -p -m644 -D %{SOURCE1} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/default.pa
 
+sed -i -e 's/^load-module module-console-kit/#load-module module-console-kit/' $RPM_BUILD_ROOT/etc/pulse/default.pa
+
 %find_lang %{name}
 
 %clean
@@ -457,6 +459,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Mon Feb 20 2012 Lennart Poettering <lpoetter@redhat.com> - 1.1-7
+- Temporary fix for CK/systemd move
+
 * Mon Jan 23 2012 Dan Horák <dan@danny.cz> - 1.1-6
 - rebuilt for json-c-0.9-4.fc17
 
