@@ -1,7 +1,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        1.1
-Release:        7%{?dist}
+Release:        8%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 Source0:        http://0pointer.de/lennart/projects/pulseaudio/pulseaudio-%{version}.tar.xz
@@ -12,6 +12,8 @@ Patch0:         pulseaudio-activation.patch
 Patch1:         0001-alsa-support-fixed-latency-range-in-alsa-modules.patch
 Patch2:         0002-alsa-fixed-latency-range-handling-for-udev-detect.patch
 Patch3:         0003-alsa-fixed_latency_range-modarg-for-module-alsa-card.patch
+# Same fix as was used for bluez
+Patch4:         pulseaudio-gcc47.patch
 URL:            http://pulseaudio.org/
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
@@ -206,6 +208,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch3 -p0 -b .gcc47
 
 %build
 %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --disable-hal --without-fftw
@@ -459,6 +462,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Tue Feb 28 2012 Bruno Wolff III <bruno@wolff.to< - 1.1-8
+- Fix for building with gcc 4.7
+
 * Mon Feb 20 2012 Lennart Poettering <lpoetter@redhat.com> - 1.1-7
 - Temporary fix for CK/systemd move (#794690)
 
