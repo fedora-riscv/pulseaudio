@@ -208,7 +208,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch3 -p0 -b .gcc47
+%patch4 -p0 -b .gcc47
 
 %build
 %configure --disable-static --disable-rpath --with-system-user=pulse --with-system-group=pulse --with-access-group=pulse-access --disable-hal --without-fftw
