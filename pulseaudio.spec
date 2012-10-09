@@ -1,7 +1,11 @@
+%ifarch %{ix86} x86_64 %{arm}
+%global with_webrtc 1
+%endif
+
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        2.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
@@ -50,7 +54,9 @@ BuildRequires:  libasyncns-devel
 BuildRequires:  systemd-devel >= 184
 BuildRequires:  json-c-devel
 BuildRequires:  dbus-devel
+%if 0%{with_webrtc}
 BuildRequires:  webrtc-audio-processing-devel
+%endif
 # retired along with -libs-zeroconf, add Obsoletes here for lack of anything better
 Obsoletes:      padevchooser < 1.0
 Requires:       %{name}-libs%{?_isa} = %{version}-%{release}
@@ -208,7 +214,11 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
   --disable-hal \
   --without-fftw \
   --enable-systemd \
+%if 0%{with_webrtc}
   --enable-webrtc-aec
+%else
+  %{nil}
+%endif
 
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 
@@ -278,7 +288,9 @@ exit 0
 %{_libdir}/pulse-%{version}/modules/libprotocol-native.so
 %{_libdir}/pulse-%{version}/modules/libprotocol-simple.so
 %{_libdir}/pulse-%{version}/modules/librtp.so
+%if 0%{with_webrtc}
 %{_libdir}/pulse-%{version}/modules/libwebrtc-util.so
+%endif
 %{_libdir}/pulse-%{version}/modules/module-alsa-sink.so
 %{_libdir}/pulse-%{version}/modules/module-alsa-source.so
 %{_libdir}/pulse-%{version}/modules/module-alsa-card.so
@@ -465,6 +477,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Tue Oct 09 2012 Dan Horák <dan[at]danny.cz> 2.1-3
+- webrtc-aec is x86 and ARM only for now
+
 * Mon Oct 08 2012 Debarshi Ray <rishi@fedoraproject.org> 2.1-2
 - Enable webrtc-aec
 
