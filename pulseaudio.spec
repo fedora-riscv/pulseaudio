@@ -5,7 +5,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        2.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
@@ -54,7 +54,7 @@ BuildRequires:  libasyncns-devel
 BuildRequires:  systemd-devel >= 184
 BuildRequires:  json-c-devel
 BuildRequires:  dbus-devel
-%if 0%{with_webrtc}
+%if 0%{?with_webrtc}
 BuildRequires:  webrtc-audio-processing-devel
 %endif
 # retired along with -libs-zeroconf, add Obsoletes here for lack of anything better
@@ -214,7 +214,7 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
   --disable-hal \
   --without-fftw \
   --enable-systemd \
-%if 0%{with_webrtc}
+%if 0%{?with_webrtc}
   --enable-webrtc-aec
 %else
   %{nil}
@@ -288,7 +288,7 @@ exit 0
 %{_libdir}/pulse-%{version}/modules/libprotocol-native.so
 %{_libdir}/pulse-%{version}/modules/libprotocol-simple.so
 %{_libdir}/pulse-%{version}/modules/librtp.so
-%if 0%{with_webrtc}
+%if 0%{?with_webrtc}
 %{_libdir}/pulse-%{version}/modules/libwebrtc-util.so
 %endif
 %{_libdir}/pulse-%{version}/modules/module-alsa-sink.so
@@ -477,6 +477,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Wed Oct 10 2012 Dan Horák <dan[at]danny.cz> 2.1-4
+- fix the with_webrtc condition
+
 * Tue Oct 09 2012 Dan Horák <dan[at]danny.cz> 2.1-3
 - webrtc-aec is x86 and ARM only for now
 
