@@ -5,7 +5,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        2.1
-Release:        4%{?dist}
+Release:        5%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
@@ -14,6 +14,9 @@ Source1:        default.pa-for-gdm
 
 # activate pulseaudio early at login
 Patch0:         pulseaudio-activation.patch
+
+## upstream patches
+Patch103: 0003-sink-Process-rewind-requests-also-when-suspended.patch
 
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
@@ -197,6 +200,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %prep
 %setup -q -T -b0
 %patch0 -p1 -b .activation
+%patch103 -p1 -b .0003
 
 ## kill rpaths
 %if "%{_libdir}" != "/usr/lib"
@@ -477,6 +481,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Thu Dec 27 2012 Rex Dieter <rdieter@fedoraproject.org> 2.1-5
+- huge skype sound events delay (#888422)
+
 * Wed Oct 10 2012 Dan Horák <dan[at]danny.cz> 2.1-4
 - fix the with_webrtc condition
 

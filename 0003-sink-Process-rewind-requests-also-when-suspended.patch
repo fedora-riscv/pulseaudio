@@ -1,0 +1,370 @@
+From afbc9dbe49325882dbfad9a068d8d0537f3a62a1 Mon Sep 17 00:00:00 2001
+From: Tanu Kaskinen <tanuk@iki.fi>
+Date: Thu, 30 Aug 2012 16:50:13 +0300
+Subject: [PATCH 3/3] sink: Process rewind requests also when suspended.
+
+When a rewind is requested on a sink input, the request parameters are
+stored in the pa_sink_input struct. The parameters are reset during
+rewind processing, and if the sink decides to ignore the rewind
+request due to being suspended, stale parameters are left in
+pa_sink_input. It's particularly problematic if the rewrite_bytes
+parameter is left at -1, because that will prevent all future rewind
+processing on that sink input. So, in order to avoid stale parameters,
+every rewind request needs to be processed, even if the sink is
+suspended.
+
+Reported-by: Uoti Urpala
+---
+ src/modules/alsa/alsa-sink.c                 | 14 ++++++++++----
+ src/modules/jack/module-jack-sink.c          |  5 ++---
+ src/modules/macosx/module-coreaudio-device.c |  9 ++++++---
+ src/modules/module-combine-sink.c            |  5 ++---
+ src/modules/module-esound-sink.c             |  5 ++---
+ src/modules/module-null-sink.c               | 22 +++++++++-------------
+ src/modules/module-pipe-sink.c               |  7 +++----
+ src/modules/module-solaris.c                 | 13 ++++++++-----
+ src/modules/module-tunnel.c                  |  5 ++---
+ src/modules/module-waveout.c                 |  9 ++++++---
+ src/modules/oss/module-oss.c                 |  5 ++---
+ src/modules/raop/module-raop-sink.c          |  5 ++---
+ src/modules/xen/module-xenpv-sink.c          |  7 +++----
+ src/pulsecore/sink.c                         |  6 ------
+ 14 files changed, 57 insertions(+), 60 deletions(-)
+
+diff --git a/src/modules/alsa/alsa-sink.c b/src/modules/alsa/alsa-sink.c
+index 1bee8f3..9492cab 100644
+--- a/src/modules/alsa/alsa-sink.c
++++ b/src/modules/alsa/alsa-sink.c
+@@ -1602,6 +1602,11 @@ static int process_rewind(struct userdata *u) {
+     size_t rewind_nbytes, unused_nbytes, limit_nbytes;
+     pa_assert(u);
+ 
++    if (!PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
++        pa_sink_process_rewind(u->sink, 0);
++        return 0;
++    }
++
+     /* Figure out how much we shall rewind and reset the counter */
+     rewind_nbytes = u->sink->thread_info.rewind_nbytes;
+ 
+@@ -1681,16 +1686,17 @@ static void thread_func(void *userdata) {
+         pa_log_debug("Loop");
+ #endif
+ 
++        if (PA_UNLIKELY(u->sink->thread_info.rewind_requested)) {
++            if (process_rewind(u) < 0)
++                goto fail;
++        }
++
+         /* Render some data and write it to the dsp */
+         if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+             int work_done;
+             pa_usec_t sleep_usec = 0;
+             pa_bool_t on_timeout = pa_rtpoll_timer_elapsed(u->rtpoll);
+ 
+-            if (PA_UNLIKELY(u->sink->thread_info.rewind_requested))
+-                if (process_rewind(u) < 0)
+-                        goto fail;
+-
+             if (u->use_mmap)
+                 work_done = mmap_write(u, &sleep_usec, revents & POLLOUT, on_timeout);
+             else
+diff --git a/src/modules/jack/module-jack-sink.c b/src/modules/jack/module-jack-sink.c
+index 017fbf6..cf97e4a 100644
+--- a/src/modules/jack/module-jack-sink.c
++++ b/src/modules/jack/module-jack-sink.c
+@@ -229,9 +229,8 @@ static void thread_func(void *userdata) {
+     for (;;) {
+         int ret;
+ 
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
+ 
+         if ((ret = pa_rtpoll_run(u->rtpoll, TRUE)) < 0)
+             goto fail;
+diff --git a/src/modules/macosx/module-coreaudio-device.c b/src/modules/macosx/module-coreaudio-device.c
+index 47fd1e6..e2a533b 100644
+--- a/src/modules/macosx/module-coreaudio-device.c
++++ b/src/modules/macosx/module-coreaudio-device.c
+@@ -274,9 +274,6 @@ static int sink_process_msg(pa_msgobject *o, int code, void *data, int64_t offse
+                 pa_assert(sink);
+ 
+                 if (PA_SINK_IS_OPENED(sink->pa_sink->thread_info.state)) {
+-                    if (sink->pa_sink->thread_info.rewind_requested)
+-                        pa_sink_process_rewind(sink->pa_sink, 0);
+-
+                     audio_chunk.memblock = pa_memblock_new_fixed(u->module->core->mempool, buf->mData, buf->mDataByteSize, FALSE);
+                     audio_chunk.length = buf->mDataByteSize;
+                     audio_chunk.index = 0;
+@@ -658,8 +655,14 @@ static void thread_func(void *userdata) {
+     pa_thread_mq_install(&u->thread_mq);
+ 
+     for (;;) {
++        coreaudio_sink *ca_sink;
+         int ret;
+ 
++        PA_LLIST_FOREACH(ca_sink, u->sinks) {
++            if (ca_sink->pa_sink->thread_info.rewind_requested)
++                pa_sink_process_rewind(ca_sink->pa_sink, 0);
++        }
++
+         ret = pa_rtpoll_run(u->rtpoll, TRUE);
+ 
+         if (ret < 0)
+diff --git a/src/modules/module-combine-sink.c b/src/modules/module-combine-sink.c
+index dec2279..8847077 100644
+--- a/src/modules/module-combine-sink.c
++++ b/src/modules/module-combine-sink.c
+@@ -307,9 +307,8 @@ static void thread_func(void *userdata) {
+     for (;;) {
+         int ret;
+ 
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
+ 
+         /* If no outputs are connected, render some data and drop it immediately. */
+         if (PA_SINK_IS_OPENED(u->sink->thread_info.state) && !u->thread_info.active_outputs) {
+diff --git a/src/modules/module-esound-sink.c b/src/modules/module-esound-sink.c
+index 1e26e5e..468de01 100644
+--- a/src/modules/module-esound-sink.c
++++ b/src/modules/module-esound-sink.c
+@@ -213,9 +213,8 @@ static void thread_func(void *userdata) {
+     for (;;) {
+         int ret;
+ 
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
+ 
+         if (u->rtpoll_item) {
+             struct pollfd *pollfd;
+diff --git a/src/modules/module-null-sink.c b/src/modules/module-null-sink.c
+index f40546a..d6ea43f 100644
+--- a/src/modules/module-null-sink.c
++++ b/src/modules/module-null-sink.c
+@@ -136,11 +136,11 @@ static void process_rewind(struct userdata *u, pa_usec_t now) {
+ 
+     pa_assert(u);
+ 
+-    /* Figure out how much we shall rewind and reset the counter */
+     rewind_nbytes = u->sink->thread_info.rewind_nbytes;
+-    u->sink->thread_info.rewind_nbytes = 0;
+ 
+-    pa_assert(rewind_nbytes > 0);
++    if (!PA_SINK_IS_OPENED(u->sink->thread_info.state) || rewind_nbytes <= 0)
++        goto do_nothing;
++
+     pa_log_debug("Requested to rewind %lu bytes.", (unsigned long) rewind_nbytes);
+ 
+     if (u->timestamp <= now)
+@@ -207,21 +207,17 @@ static void thread_func(void *userdata) {
+     u->timestamp = pa_rtclock_now();
+ 
+     for (;;) {
++        pa_usec_t now = 0;
+         int ret;
+ 
+-        /* Render some data and drop it immediately */
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+-            pa_usec_t now;
+-
++        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+             now = pa_rtclock_now();
+ 
+-            if (u->sink->thread_info.rewind_requested) {
+-                if (u->sink->thread_info.rewind_nbytes > 0)
+-                    process_rewind(u, now);
+-                else
+-                    pa_sink_process_rewind(u->sink, 0);
+-            }
++        if (u->sink->thread_info.rewind_requested)
++            process_rewind(u, now);
+ 
++        /* Render some data and drop it immediately */
++        if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+             if (u->timestamp <= now)
+                 process_render(u, now);
+ 
+diff --git a/src/modules/module-pipe-sink.c b/src/modules/module-pipe-sink.c
+index 91e01f9..a3cff6b 100644
+--- a/src/modules/module-pipe-sink.c
++++ b/src/modules/module-pipe-sink.c
+@@ -180,12 +180,11 @@ static void thread_func(void *userdata) {
+ 
+         pollfd = pa_rtpoll_item_get_pollfd(u->rtpoll_item, NULL);
+ 
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
++
+         /* Render some data and write it to the fifo */
+         if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+-
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
+-
+             if (pollfd->revents) {
+                 if (process_render(u) < 0)
+                     goto fail;
+diff --git a/src/modules/module-solaris.c b/src/modules/module-solaris.c
+index 5081ceb..aaf7189 100644
+--- a/src/modules/module-solaris.c
++++ b/src/modules/module-solaris.c
+@@ -587,9 +587,12 @@ static void process_rewind(struct userdata *u) {
+ 
+     pa_assert(u);
+ 
+-    /* Figure out how much we shall rewind and reset the counter */
++    if (!PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
++        pa_sink_process_rewind(u->sink, 0);
++        return;
++    }
++
+     rewind_nbytes = u->sink->thread_info.rewind_nbytes;
+-    u->sink->thread_info.rewind_nbytes = 0;
+ 
+     if (rewind_nbytes > 0) {
+         pa_log_debug("Requested to rewind %lu bytes.", (unsigned long) rewind_nbytes);
+@@ -625,13 +628,13 @@ static void thread_func(void *userdata) {
+     for (;;) {
+         /* Render some data and write it to the dsp */
+ 
++        if (u->sink->thread_info.rewind_requested)
++            process_rewind(u);
++
+         if (u->sink && PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+             pa_usec_t xtime0, ysleep_interval, xsleep_interval;
+             uint64_t buffered_bytes;
+ 
+-            if (u->sink->thread_info.rewind_requested)
+-                process_rewind(u);
+-
+             err = ioctl(u->fd, AUDIO_GETINFO, &info);
+             if (err < 0) {
+                 pa_log("AUDIO_GETINFO ioctl failed: %s", pa_cstrerror(errno));
+diff --git a/src/modules/module-tunnel.c b/src/modules/module-tunnel.c
+index 0916717..61c00c9 100644
+--- a/src/modules/module-tunnel.c
++++ b/src/modules/module-tunnel.c
+@@ -698,9 +698,8 @@ static void thread_func(void *userdata) {
+         int ret;
+ 
+ #ifdef TUNNEL_SINK
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (PA_UNLIKELY(u->sink->thread_info.rewind_requested))
+-                pa_sink_process_rewind(u->sink, 0);
++        if (PA_UNLIKELY(u->sink->thread_info.rewind_requested))
++            pa_sink_process_rewind(u->sink, 0);
+ #endif
+ 
+         if ((ret = pa_rtpoll_run(u->rtpoll, TRUE)) < 0)
+diff --git a/src/modules/module-waveout.c b/src/modules/module-waveout.c
+index 53efce9..d02bb6b 100644
+--- a/src/modules/module-waveout.c
++++ b/src/modules/module-waveout.c
+@@ -255,13 +255,16 @@ static void thread_func(void *userdata) {
+         int ret;
+         pa_bool_t need_timer = FALSE;
+ 
+-        if (u->sink && PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
++        if (u->sink) {
+             if (u->sink->thread_info.rewind_requested)
+                 pa_sink_process_rewind(u->sink, 0);
+ 
+-            do_write(u);
+-            need_timer = TRUE;
++            if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
++                do_write(u);
++                need_timer = TRUE;
++            }
+         }
++
+         if (u->source && PA_SOURCE_IS_OPENED(u->source->thread_info.state)) {
+             do_read(u);
+             need_timer = TRUE;
+diff --git a/src/modules/oss/module-oss.c b/src/modules/oss/module-oss.c
+index 6f0f271..3d79412 100644
+--- a/src/modules/oss/module-oss.c
++++ b/src/modules/oss/module-oss.c
+@@ -891,9 +891,8 @@ static void thread_func(void *userdata) {
+ 
+ /*        pa_log("loop");    */
+ 
+-        if (u->sink && PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
++        if (u->sink && u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
+ 
+         /* Render some data and write it to the dsp */
+ 
+diff --git a/src/modules/raop/module-raop-sink.c b/src/modules/raop/module-raop-sink.c
+index 2cb7a95..2952216 100644
+--- a/src/modules/raop/module-raop-sink.c
++++ b/src/modules/raop/module-raop-sink.c
+@@ -327,9 +327,8 @@ static void thread_func(void *userdata) {
+     for (;;) {
+         int ret;
+ 
+-        if (PA_SINK_IS_OPENED(u->sink->thread_info.state))
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
+ 
+         if (u->rtpoll_item) {
+             struct pollfd *pollfd;
+diff --git a/src/modules/xen/module-xenpv-sink.c b/src/modules/xen/module-xenpv-sink.c
+index 34e5fc4..a5756e5 100644
+--- a/src/modules/xen/module-xenpv-sink.c
++++ b/src/modules/xen/module-xenpv-sink.c
+@@ -338,12 +338,11 @@ static void thread_func(void *userdata) {
+ 
+         pollfd = pa_rtpoll_item_get_pollfd(u->rtpoll_item, NULL);
+ 
++        if (u->sink->thread_info.rewind_requested)
++            pa_sink_process_rewind(u->sink, 0);
++
+         /* Render some data and write it to the fifo */
+         if (PA_SINK_IS_OPENED(u->sink->thread_info.state)) {
+-
+-            if (u->sink->thread_info.rewind_requested)
+-                pa_sink_process_rewind(u->sink, 0);
+-
+             if (pollfd->revents) {
+                 if (process_render(u) < 0)
+                     goto fail;
+diff --git a/src/pulsecore/sink.c b/src/pulsecore/sink.c
+index e4c343d..3d08d1a 100644
+--- a/src/pulsecore/sink.c
++++ b/src/pulsecore/sink.c
+@@ -928,9 +928,6 @@ void pa_sink_process_rewind(pa_sink *s, size_t nbytes) {
+     s->thread_info.rewind_nbytes = 0;
+     s->thread_info.rewind_requested = FALSE;
+ 
+-    if (s->thread_info.state == PA_SINK_SUSPENDED)
+-        return;
+-
+     if (nbytes > 0) {
+         pa_log_debug("Processing rewind...");
+         if (s->flags & PA_SINK_DEFERRED_VOLUME)
+@@ -2898,9 +2895,6 @@ void pa_sink_request_rewind(pa_sink*s, size_t nbytes) {
+     pa_sink_assert_io_context(s);
+     pa_assert(PA_SINK_IS_LINKED(s->thread_info.state));
+ 
+-    if (s->thread_info.state == PA_SINK_SUSPENDED)
+-        return;
+-
+     if (nbytes == (size_t) -1)
+         nbytes = s->thread_info.max_rewind;
+ 
+-- 
+1.8.0.2
+
