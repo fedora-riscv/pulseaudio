@@ -5,7 +5,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        2.1
-Release:        5%{?dist}
+Release:        6%{?dist}
 License:        LGPLv2+
 Group:          System Environment/Daemons
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
@@ -266,6 +266,13 @@ exit 0
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
+%posttrans
+# handle renamed module-cork-music-on-phone => module-role-cork
+(grep '^load-module module-cork-music-on-phone$' %{_sysconfdir}/pulse/default.pa > /dev/null && \
+ sed -i.rpmsave -e 's|^load-module module-cork-music-on-phone$|load-module module-role-cork|' \
+ %{_sysconfdir}/pulse/default.pa
+) ||:
+
 %post libs -p /sbin/ldconfig
 %postun libs -p /sbin/ldconfig
 
@@ -481,6 +488,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Fri Feb 08 2013 Rex Dieter <rdieter@fedoraproject.org> 2.1-6
+- default.pa: fix for renamed modules (#908117)
+
 * Thu Dec 27 2012 Rex Dieter <rdieter@fedoraproject.org> 2.1-5
 - huge skype sound events delay (#888422)
 
