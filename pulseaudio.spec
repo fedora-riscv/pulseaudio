@@ -8,7 +8,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        7%{?dist}
+Release:        8%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
@@ -217,6 +217,7 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
   --with-system-group=pulse \
   --with-access-group=pulse-access \
   --disable-hal \
+  --disable-oss-output \
   --without-fftw \
 %ifarch %{arm}
   --disable-neon-opt \
@@ -239,11 +240,7 @@ mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 mv -f $RPM_BUILD_ROOT/lib/udev/rules.d/90-pulseaudio.rules $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 
 rm -fv $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/*.la
-rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/liboss-util.so
-rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-oss.so
 rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-detect.so
-rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-pipe-sink.so
-rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-pipe-source.so
 # preserve time stamps, for multilib's sake
 touch -r src/daemon/daemon.conf.in $RPM_BUILD_ROOT%{_sysconfdir}/pulse/daemon.conf
 touch -r src/daemon/default.pa.in $RPM_BUILD_ROOT%{_sysconfdir}/pulse/default.pa
@@ -332,6 +329,8 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-native-protocol-unix.so
 %{_libdir}/pulse-%{pa_major}/modules/module-null-sink.so
 %{_libdir}/pulse-%{pa_major}/modules/module-null-source.so
+%{_libdir}/pulse-%{pa_major}/modules/module-pipe-sink.so
+%{_libdir}/pulse-%{pa_major}/modules/module-pipe-source.so
 %{_libdir}/pulse-%{pa_major}/modules/module-rescue-streams.so
 %{_libdir}/pulse-%{pa_major}/modules/module-rtp-recv.so
 %{_libdir}/pulse-%{pa_major}/modules/module-rtp-send.so
@@ -476,6 +475,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Fri May 03 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-8
+- RFE: Restore the pipe-sink and pipe-source modules (#958949)
+
 * Thu Apr 11 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-7
 - pull a few more patches from upstream stable-3.x branch
 
