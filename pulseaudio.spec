@@ -8,7 +8,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        9%{?dist}
+Release:        10%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
@@ -198,7 +198,8 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 
 %patch101 -p1 -b .0001
 %patch102 -p1 -b .0002
-%patch103 -p1 -b .0003
+## skip to avoid needless (re)autoconf
+#patch103 -p1 -b .0003
 %patch104 -p1 -b .0004
 %patch105 -p1 -b .0005
 %patch106 -p1 -b .0006
@@ -475,6 +476,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Thu May 30 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-10
+- avoid needless (re)autoconf
+
 * Thu May 30 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-9
 - [RFE] Build with libcap (#969232)
 
