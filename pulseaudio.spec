@@ -8,7 +8,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        8%{?dist}
+Release:        9%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
@@ -63,6 +63,7 @@ BuildRequires:  libasyncns-devel
 BuildRequires:  systemd-devel >= 184
 BuildRequires:  json-c-devel
 BuildRequires:  dbus-devel
+BuildRequires:  libcap-devel
 %if 0%{?with_webrtc}
 BuildRequires:  webrtc-audio-processing-devel
 %endif
@@ -216,7 +217,6 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
   --with-system-user=pulse \
   --with-system-group=pulse \
   --with-access-group=pulse-access \
-  --disable-hal \
   --disable-oss-output \
   --without-fftw \
 %ifarch %{arm}
@@ -475,6 +475,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Thu May 30 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-9
+- [RFE] Build with libcap (#969232)
+
 * Fri May 03 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-8
 - RFE: Restore the pipe-sink and pipe-source modules (#958949)
 
