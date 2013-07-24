@@ -8,7 +8,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        10%{?dist}
+Release:        11%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
@@ -22,6 +22,7 @@ Patch104: 0004-Call-change_cb-only-when-there-s-an-actual-change.patch
 Patch105: 0005-Initialize-monitor-s-busy-status-to-false-if-we-own-.patch
 Patch106: 0006-reserve-Move-get_name_owner-to-the-public-rd_device-.patch
 Patch107: 0007-reserve-Fix-leaking-NameLost-signals-after-release-a.patch
+Patch108: 0008-alsa_ucm-fallback-to-stereo-duplex.patch
 
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
@@ -204,6 +205,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch105 -p1 -b .0005
 %patch106 -p1 -b .0006
 %patch107 -p1 -b .0007
+%patch108 -p1 -b .0008
 
 ## kill rpaths
 %if "%{_libdir}" != "/usr/lib"
@@ -476,6 +478,10 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Tue Jul 23 2013 Kyle McMartin <kyle@redhat.com> 3.0-11
+- pull an upstream patch to avoid an assert when channels are absent
+  in a ucm file (git commit 83d44139 upstream.)
+
 * Thu May 30 2013 Rex Dieter <rdieter@fedoraproject.org> 3.0-10
 - avoid needless (re)autoconf
 

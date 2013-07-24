@@ -1,0 +1,30 @@
+commit 83d44139d3550ebd867d61cf1b4564370d56e5e4
+Author: David Henningsson <david.henningsson@canonical.com>
+Date:   Tue Feb 5 09:22:17 2013 +0100
+
+    alsa-ucm: Fallback to stereo duplex
+    
+    If 'PlaybackChannels' and 'CaptureChannels' are absent in the UCM
+    file for a device, assume the device is stereo duplex.
+    
+    Reported-by: Luke Yelavich <luke.yelavich@canonical.com>
+    Signed-off-by: David Henningsson <david.henningsson@canonical.com>
+
+diff --git a/src/modules/alsa/alsa-ucm.c b/src/modules/alsa/alsa-ucm.c
+index 80e98ea..9e62dcb 100644
+--- a/src/modules/alsa/alsa-ucm.c
++++ b/src/modules/alsa/alsa-ucm.c
+@@ -247,7 +247,12 @@ static int ucm_get_device_property(
+         }
+     }
+ 
+-    pa_assert(device->playback_channels || device->capture_channels);
++    if (device->playback_channels == 0 && device->capture_channels == 0) {
++        pa_log_warn("UCM file does not specify 'PlaybackChannels' or 'CaptureChannels'"
++                    "for device %s, assuming stereo duplex.", device_name);
++        device->playback_channels = 2;
++        device->capture_channels = 2;
++    }
+ 
+     /* get priority of device */
+     if (device->playback_channels) { /* sink device */
