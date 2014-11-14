@@ -21,7 +21,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        24%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        23%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -81,6 +81,7 @@ BuildRequires:  openssl-devel
 BuildRequires:  orc-devel
 BuildRequires:  libtdb-devel
 BuildRequires:  speex-devel >= 1.2
+BuildRequires:  systemd-devel
 BuildRequires:  libasyncns-devel
 BuildRequires:  systemd-devel >= 184
 BuildRequires:  json-c-devel
@@ -251,7 +252,7 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 %ifarch %{arm}
   --disable-neon-opt \
 %endif
-  --disable-systemd-daemon \
+  --enable-systemd \
 %if 0%{?with_webrtc}
   --enable-webrtc-aec \
 %endif
@@ -344,8 +345,8 @@ exit 0
 %config(noreplace) %{_sysconfdir}/pulse/system.pa
 %{_sysconfdir}/dbus-1/system.d/pulseaudio-system.conf
 %{bash_completionsdir}/*
-#{_prefix}/lib/systemd/user/pulseaudio.service
-#{_prefix}/lib/systemd/user/pulseaudio.socket
+%{_prefix}/lib/systemd/user/pulseaudio.service
+%{_prefix}/lib/systemd/user/pulseaudio.socket
 %{_bindir}/pulseaudio
 %{_libdir}/libpulsecore-%{pa_major}.so
 %dir %{_libdir}/pulse-%{pa_major}/
@@ -560,9 +561,6 @@ exit 0
 
 
 %changelog
-* Thu Nov 06 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-24.20141103gitaec81
-- --disable-systemd-daemon, revert to autospawn mode
-
 * Thu Nov 06 2014 Rex Dieter <rdieter@fedoraproject.org> - 5.0-23.20141103gitaec81
 - 20141103 327-gaec81 snapshot, pulseaudio socket activation support
 - use bash completionsdir
