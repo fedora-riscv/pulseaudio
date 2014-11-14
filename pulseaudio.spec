@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        22%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        21%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -316,7 +316,7 @@ make check \
 
 %pre
 getent group pulse-access >/dev/null || groupadd -r pulse-access
-getent group pulse-rt >/dev/null || groupadd -r pulse-rt
+getent group pulse-access >/dev/null || groupadd -r pulse-rt
 getent group pulse >/dev/null || groupadd -f -g 171 -r pulse
 if ! getent passwd pulse >/dev/null ; then
     if ! getent passwd 171 >/dev/null ; then
@@ -560,9 +560,6 @@ exit 0
 
 
 %changelog
-* Wed Nov 05 2014 Orion Poplawski <orion@cora.nwra.com> 5.0-22.20141007git4971d 
-- Really add pulse-rt group when needed (bug #885020)
-
 * Wed Oct 22 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-21.20141007git4971d 
 - BR: automake libtool (for bootstrap.sh)
 
