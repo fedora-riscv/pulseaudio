@@ -1,10 +1,9 @@
 %global pa_major   5.0
 #global pa_minor   0
 
-%global snap       20141019
-%global gitrel     287
-%global gitcommit  4971dc9ed695256cfb179c5ef4d7bf43d3826ba2
-%global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
+#global gitrel     266
+#global gitcommit  f81e3e1d7852c05b4b737ac7dac4db95798f0117
+#global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 %ifarch %{ix86} x86_64 %{arm}
 %global with_webrtc 1
@@ -19,7 +18,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        20%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        10%{?gitcommit:.git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -32,12 +31,17 @@ Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%
 Source1:        default.pa-for-gdm
 
 ## upstream patches
+# https://bugzilla.redhat.com/show_bug.cgi?id=1035025
+# https://bugs.freedesktop.org/show_bug.cgi?id=73375
+Patch036: 0036-module-switch-on-port-available-Don-t-switch-profile.patch
+Patch039: 0039-Name-HDMI-outputs-uniquely.patch
+Patch112: 0112-rtp-recv-fix-crash-on-empty-UDP-packets-CVE-2014-397.patch
 
 ## upstreamable patches
-# WIP bluetooth headset work from http://cgit.freedesktop.org/~wtay/pulseaudio/log/?h=headset2
-Patch1: 0001-bluez5-device-use-get_profile_direction.patch
-Patch2: 0002-bluez5-util-add-dispose-function.patch
-Patch3: 0003-backend-native-add-a-new-native-headset-backend.patch
+# simplify and ship only 1 autostart file
+Patch501: pulseaudio-x11_device_manager.patch
+# set X-KDE-autostart-phase=1
+Patch502: pulseaudio-4.0-kde_autostart_phase.patch
 
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
@@ -216,16 +220,15 @@ Requires(pre):  gdm
 %description gdm-hooks
 This package contains GDM integration hooks for the PulseAudio sound server.
 
-
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
-%patch1 -p1 -b .0001
-%patch2 -p1 -b .0002
-%patch3 -p1 -b .0003
+%patch036 -p1 -b .0036
+%patch039 -p1 -b .0039
+%patch112 -p1 -b .0112
 
-# needed by patch3
-./bootstrap.sh
+%patch501 -p1 -b .x11_device_manager
+%patch502 -p1 -b .kde_autostart_phase
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -241,10 +244,9 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 %endif
 %endif
 
-
 %build
+
 %configure \
-  --disable-silent-rules \
   --disable-static \
   --disable-rpath \
   --with-system-user=pulse \
@@ -267,7 +269,6 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 make %{?_smp_mflags} V=1
 make doxygen
-
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -299,6 +300,9 @@ install -p -m644 -D %{SOURCE1} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/d
 rm -fv $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/*.la
 # PA_MODULE_DEPRECATED("Please use module-udev-detect instead of module-detect!");
 rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-detect.so
+# x11_device_manager folds -kde functionality into single -x11 autostart, so this
+# one is no longer needed
+rm -fv $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
 
 %find_lang %{name}
 
@@ -438,9 +442,6 @@ exit 0
 %{_prefix}/lib/udev/rules.d/90-pulseaudio.rules
 %dir %{_libexecdir}/pulse
 %attr(0700, pulse, pulse) %dir %{_localstatedir}/lib/pulse
-%dir %{_datadir}/zsh/
-%dir %{_datadir}/zsh/site-functions/
-%{_datadir}/zsh/site-functions/_pulseaudio
 
 %files qpaeq
 %{_bindir}/qpaeq
@@ -457,12 +458,15 @@ exit 0
 
 %files module-x11
 %{_sysconfdir}/xdg/autostart/pulseaudio.desktop
-#{_bindir}/start-pulseaudio-kde
+## no longer included per x11_device_manager.patch
+#config %{_sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
+%{_bindir}/start-pulseaudio-kde
 %{_bindir}/start-pulseaudio-x11
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-bell.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-publish.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-xsmp.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-cork-request.so
+%{_mandir}/man1/start-pulseaudio-kde.1.gz
 %{_mandir}/man1/start-pulseaudio-x11.1.gz
 
 %files module-zeroconf
@@ -525,9 +529,6 @@ exit 0
 %{_datadir}/vala/vapi/libpulse.deps
 %{_datadir}/vala/vapi/libpulse-mainloop-glib.vapi
 %{_datadir}/vala/vapi/libpulse-mainloop-glib.deps
-%{_datadir}/vala/vapi/libpulse-simple.deps
-%{_datadir}/vala/vapi/libpulse-simple.vapi
-
 %dir %{_libdir}/cmake
 %{_libdir}/cmake/PulseAudio/
 
@@ -557,11 +558,7 @@ exit 0
 %attr(0700, gdm, gdm) %dir %{_localstatedir}/lib/gdm/.pulse
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
-
 %changelog
-* Wed Oct 22 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-20.20141007git4971d
-- snapshot, with wip bt headset2 patches (#1045548,#1067470)
-
 * Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.0-10
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
 
