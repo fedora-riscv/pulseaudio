@@ -2,8 +2,8 @@
 #global pa_minor   0
 
 %global snap       20141103
-%global gitrel     327
-%global gitcommit  aec811798cd883a454b9b5cd82c77831906bbd2d
+%global gitrel     323
+%global gitcommit  6d1fd4d1aab38a18925972f11face92ea602adf0
 %global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 #323-g6d1fd
@@ -38,8 +38,6 @@ Source1:        default.pa-for-gdm
 ## upstreamable patches
 
 BuildRequires:  automake libtool
-BuildRequires:  pkgconfig(bash-completion)
-%global bash_completionsdir %(pkg-config --variable=completionsdir bash-completion 2>/dev/null || echo '/etc/bash_completion.d')
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  intltool
@@ -288,13 +286,6 @@ mv -fv $RPM_BUILD_ROOT/lib/udev/rules.d/90-pulseaudio.rules $RPM_BUILD_ROOT%{_pr
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/pulse
 install -p -m644 -D %{SOURCE1} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/default.pa
 
-# bash completions
-%if "%{bash_completionsdir}" != "/etc/bash_completion.d"
-mkdir -p $RPM_BUILD_ROOT%{bash_completionsdir}
-mv $RPM_BUILD_ROOT/etc/bash_completion.d/* \
-   $RPM_BUILD_ROOT%{bash_completionsdir}/
-%endif
-
 ## unpackaged files
 # extraneous libtool crud
 rm -fv $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/*.la
@@ -344,9 +335,8 @@ exit 0
 %config(noreplace) %{_sysconfdir}/pulse/default.pa
 %config(noreplace) %{_sysconfdir}/pulse/system.pa
 %{_sysconfdir}/dbus-1/system.d/pulseaudio-system.conf
-%{bash_completionsdir}/*
-%{_prefix}/lib/systemd/user/pulseaudio.service
-%{_prefix}/lib/systemd/user/pulseaudio.socket
+%dir %{_sysconfdir}/bash_completion.d/
+%{_sysconfdir}/bash_completion.d/pulseaudio-bash-completion.sh
 %{_bindir}/pulseaudio
 %{_libdir}/libpulsecore-%{pa_major}.so
 %dir %{_libdir}/pulse-%{pa_major}/
@@ -561,9 +551,8 @@ exit 0
 
 
 %changelog
-* Thu Nov 06 2014 Rex Dieter <rdieter@fedoraproject.org> - 5.0-23.20141103gitaec81
-- 20141103 327-gaec81 snapshot, pulseaudio socket activation support
-- use bash completionsdir
+* Wed Nov 05 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-23.20141103git6d1fd
+- 20141103 snapshot
 
 * Wed Nov 05 2014 Orion Poplawski <orion@cora.nwra.com> 5.0-22.20141007git4971d 
 - Really add pulse-rt group when needed (bug #885020)
