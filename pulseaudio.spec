@@ -18,7 +18,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        8%{?gitcommit:.git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -319,7 +319,7 @@ make check \
 
 %pre
 getent group pulse-access >/dev/null || groupadd -r pulse-access
-getent group pulse-access >/dev/null || groupadd -r pulse-rt
+getent group pulse-rt >/dev/null || groupadd -r pulse-rt
 getent group pulse >/dev/null || groupadd -f -g 171 -r pulse
 if ! getent passwd pulse >/dev/null ; then
     if ! getent passwd 171 >/dev/null ; then
@@ -559,6 +559,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Fri Nov 14 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-8
+- %%pre: fix pulse-rt group creation (#885020)
+
 * Wed Jul 16 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-7
 - Provide padsp-32, /usr/bin/padsp is native arch only (#856146)
 
