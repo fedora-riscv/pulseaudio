@@ -36,6 +36,10 @@ Source1:        default.pa-for-gdm
 ## upstream patches
 
 ## upstreamable patches
+# WIP bluetooth headset work from http://cgit.freedesktop.org/~wtay/pulseaudio/log/?h=headset2
+Patch1: 0001-bluez5-device-use-get_profile_direction.patch
+Patch2: 0002-bluez5-util-add-dispose-function.patch
+Patch3: 0003-backend-native-add-a-new-native-headset-backend.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  m4
