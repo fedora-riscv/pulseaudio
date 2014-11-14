@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        21%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        20%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -39,7 +39,6 @@ Patch1: 0001-bluez5-device-use-get_profile_direction.patch
 Patch2: 0002-bluez5-util-add-dispose-function.patch
 Patch3: 0003-backend-native-add-a-new-native-headset-backend.patch
 
-BuildRequires:  automake libtool
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  intltool
@@ -560,9 +559,6 @@ exit 0
 
 
 %changelog
-* Wed Oct 22 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-21.20141007git4971d 
-- BR: automake libtool (for bootstrap.sh)
-
 * Wed Oct 22 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-20.20141007git4971d
 - snapshot, with wip bt headset2 patches (#1045548,#1067470)
 
