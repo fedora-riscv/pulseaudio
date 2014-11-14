@@ -1,7 +1,7 @@
-From ef4a41e8b0ef81a53769d853dbc7679b25252327 Mon Sep 17 00:00:00 2001
+From c75c1b548c973c4cdd518a6ff3939a0d538a2f6a Mon Sep 17 00:00:00 2001
 From: David Henningsson <david.henningsson@canonical.com>
 Date: Fri, 28 Mar 2014 11:59:09 +0100
-Subject: [PATCH 36/38] module-switch-on-port-available: Don't switch profiles
+Subject: [PATCH 01/31] module-switch-on-port-available: Don't switch profiles
  on uninitialized cards
 
 This could cause the HDMI port to become the default on some systems
@@ -31,5 +31,5 @@ index 2c7ad17..c560306 100644
  
      is_active_profile = card->active_profile == pa_hashmap_get(port->profiles, card->active_profile->name);
 -- 
-1.9.0
+1.9.3
 

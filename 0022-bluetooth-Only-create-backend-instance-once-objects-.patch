@@ -1,0 +1,48 @@
+From d095445795808a013ef8932d349842237d5801ee Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Mon, 8 Sep 2014 13:35:33 +0300
+Subject: [PATCH 22/31] bluetooth: Only create backend instance once objects
+ are listed
+
+This makes sure the devices are discovered before the backend start
+creating new transports.
+---
+ src/modules/bluetooth/bluez5-util.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/modules/bluetooth/bluez5-util.c b/src/modules/bluetooth/bluez5-util.c
+index 5179001..ca39318 100644
+--- a/src/modules/bluetooth/bluez5-util.c
++++ b/src/modules/bluetooth/bluez5-util.c
+@@ -895,6 +895,9 @@ static void get_managed_objects_reply(DBusPendingCall *pending, void *userdata)
+ 
+     y->objects_listed = true;
+ 
++    if (!y->backend)
++        y->backend = pa_bluetooth_backend_new(y->core);
++
+ finish:
+     dbus_message_unref(r);
+ 
+@@ -947,6 +950,10 @@ static DBusHandlerResult filter_cb(DBusConnection *bus, DBusMessage *m, void *us
+                 pa_hashmap_remove_all(y->devices);
+                 pa_hashmap_remove_all(y->adapters);
+                 y->objects_listed = false;
++                if (y->backend) {
++                    pa_bluetooth_backend_free(y->backend);
++                    y->backend = NULL;
++                }
+             }
+ 
+             if (new_owner && *new_owner) {
+@@ -1597,7 +1604,6 @@ pa_bluetooth_discovery* pa_bluetooth_discovery_get(pa_core *c) {
+ 
+     endpoint_init(y, PA_BLUETOOTH_PROFILE_A2DP_SINK);
+     endpoint_init(y, PA_BLUETOOTH_PROFILE_A2DP_SOURCE);
+-    y->backend = pa_bluetooth_backend_new(c);
+ 
+     get_managed_objects(y);
+ 
+-- 
+1.9.3
+

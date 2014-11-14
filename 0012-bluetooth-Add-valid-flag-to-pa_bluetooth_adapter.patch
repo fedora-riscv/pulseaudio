@@ -1,0 +1,63 @@
+From 3243b2681cd948b7e262e2fb54ba91caa618a4cb Mon Sep 17 00:00:00 2001
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Sat, 24 May 2014 12:56:34 +0300
+Subject: [PATCH 12/31] bluetooth: Add "valid" flag to pa_bluetooth_adapter
+
+This is a cosmetic change. There are a couple of places where we check
+whether the adapter object is valid, and while checking whether the
+address property is set works just fine, I find it nicer to have a
+dedicated flag for the object validity. This improves maintainability
+too, because if there will ever be more adapter properties that affect
+the adapter validity, the places that check if the adapter is valid
+don't need to be updated.
+---
+ src/modules/bluetooth/bluez5-util.c | 5 +++--
+ src/modules/bluetooth/bluez5-util.h | 2 ++
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/src/modules/bluetooth/bluez5-util.c b/src/modules/bluetooth/bluez5-util.c
+index 42662c7..fd58ee6 100644
+--- a/src/modules/bluetooth/bluez5-util.c
++++ b/src/modules/bluetooth/bluez5-util.c
+@@ -674,6 +674,7 @@ static void parse_adapter_properties(pa_bluetooth_adapter *a, DBusMessageIter *i
+ 
+             dbus_message_iter_get_basic(&variant_i, &value);
+             a->address = pa_xstrdup(value);
++            a->valid = true;
+         }
+ 
+         dbus_message_iter_next(&element_i);
+@@ -787,7 +788,7 @@ static void parse_interfaces_and_properties(pa_bluetooth_discovery *y, DBusMessa
+             pa_log_debug("Adapter %s found", path);
+ 
+             parse_adapter_properties(a, &iface_i, false);
+-            if (!a->address)
++            if (!a->valid)
+                 return;
+ 
+             register_endpoint(y, path, A2DP_SOURCE_ENDPOINT, PA_BLUETOOTH_UUID_A2DP_SOURCE);
+@@ -819,7 +820,7 @@ static void parse_interfaces_and_properties(pa_bluetooth_discovery *y, DBusMessa
+ 
+         if (!d->adapter && d->adapter_path) {
+             d->adapter = pa_hashmap_get(d->discovery->adapters, d->adapter_path);
+-            if (!d->adapter || !d->adapter->address) {
++            if (!d->adapter || !d->adapter->valid) {
+                 pa_log_error("Device %s is child of nonexistent or corrupted adapter %s", d->path, d->adapter_path);
+                 set_device_info_valid(d, -1);
+             } else
+diff --git a/src/modules/bluetooth/bluez5-util.h b/src/modules/bluetooth/bluez5-util.h
+index bbc5b71..e0b1be8 100644
+--- a/src/modules/bluetooth/bluez5-util.h
++++ b/src/modules/bluetooth/bluez5-util.h
+@@ -93,6 +93,8 @@ struct pa_bluetooth_adapter {
+     pa_bluetooth_discovery *discovery;
+     char *path;
+     char *address;
++
++    bool valid;
+ };
+ 
+ pa_bluetooth_transport *pa_bluetooth_transport_new(pa_bluetooth_device *d, const char *owner, const char *path,
+-- 
+1.9.3
+

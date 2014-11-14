@@ -1,0 +1,29 @@
+From 13070aa1fac6f4024b8417bcc48ef696113af263 Mon Sep 17 00:00:00 2001
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Date: Fri, 22 Aug 2014 11:07:12 +0300
+Subject: [PATCH 16/31] bluetooth: Assert transport has a matching profile
+
+It is a bug if a transport has no matching profile.
+---
+ src/modules/bluetooth/module-bluez5-device.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index 77964c1..5398a1b 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -1890,10 +1890,8 @@ static void handle_transport_state_change(struct userdata *u, struct pa_bluetoot
+ 
+     pa_assert(u);
+     pa_assert(t);
++    pa_assert_se(cp = pa_hashmap_get(u->card->profiles, pa_bluetooth_profile_to_string(t->profile)));
+ 
+-    /* Update profile availability */
+-    if (!(cp = pa_hashmap_get(u->card->profiles, pa_bluetooth_profile_to_string(t->profile))))
+-        return;
+     pa_card_profile_set_available(cp, transport_state_to_availability(t->state));
+ 
+     /* Update port availability */
+-- 
+1.9.3
+
