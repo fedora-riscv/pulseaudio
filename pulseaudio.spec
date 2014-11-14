@@ -1,12 +1,10 @@
 %global pa_major   5.0
 #global pa_minor   0
 
-%global snap       20141103
-%global gitrel     323
-%global gitcommit  6d1fd4d1aab38a18925972f11face92ea602adf0
+%global snap       20141019
+%global gitrel     287
+%global gitcommit  4971dc9ed695256cfb179c5ef4d7bf43d3826ba2
 %global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
-
-#323-g6d1fd
 
 %ifarch %{ix86} x86_64 %{arm}
 %global with_webrtc 1
@@ -21,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        23%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        22%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -222,6 +220,13 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+
+%patch1 -p1 -b .0001
+%patch2 -p1 -b .0002
+%patch3 -p1 -b .0003
+
+# needed by patch3
+./bootstrap.sh
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -555,9 +560,6 @@ exit 0
 
 
 %changelog
-* Wed Nov 05 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-23.20141103git6d1fd
-- 20141103 snapshot
-
 * Wed Nov 05 2014 Orion Poplawski <orion@cora.nwra.com> 5.0-22.20141007git4971d 
 - Really add pulse-rt group when needed (bug #885020)
 
