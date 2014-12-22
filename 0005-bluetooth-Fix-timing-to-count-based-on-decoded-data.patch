@@ -1,0 +1,116 @@
+From 79e1910f8209895444b3d9e11c1314a5bafb512e Mon Sep 17 00:00:00 2001
+From: James Bunton <jamesbunton@delx.net.au>
+Date: Mon, 27 Jan 2014 01:14:39 +1100
+Subject: [PATCH 05/31] bluetooth: Fix timing to count based on decoded data
+
+Currently the latency information is being updated based on the encoded
+SBC data instead of the decoded PCM data. Fixing this required moving
+the timing update to be after the packet has been decoded.
+---
+ src/modules/bluetooth/module-bluez4-device.c | 12 +++++++-----
+ src/modules/bluetooth/module-bluez5-device.c | 12 +++++++-----
+ 2 files changed, 14 insertions(+), 10 deletions(-)
+
+diff --git a/src/modules/bluetooth/module-bluez4-device.c b/src/modules/bluetooth/module-bluez4-device.c
+index 90b1bcd..c70e4a6 100644
+--- a/src/modules/bluetooth/module-bluez4-device.c
++++ b/src/modules/bluetooth/module-bluez4-device.c
+@@ -881,6 +881,7 @@ static int a2dp_process_push(struct userdata *u) {
+         void *d;
+         ssize_t l;
+         size_t to_write, to_decode;
++        size_t total_written = 0;
+ 
+         a2dp_prepare_buffer(u);
+ 
+@@ -907,17 +908,12 @@ static int a2dp_process_push(struct userdata *u) {
+ 
+         pa_assert((size_t) l <= a2dp->buffer_size);
+ 
+-        u->read_index += (uint64_t) l;
+-
+         /* TODO: get timestamp from rtp */
+         if (!found_tstamp) {
+             /* pa_log_warn("Couldn't find SO_TIMESTAMP data in auxiliary recvmsg() data!"); */
+             tstamp = pa_rtclock_now();
+         }
+ 
+-        pa_smoother_put(u->read_smoother, tstamp, pa_bytes_to_usec(u->read_index, &u->sample_spec));
+-        pa_smoother_resume(u->read_smoother, tstamp, true);
+-
+         p = (uint8_t*) a2dp->buffer + sizeof(*header) + sizeof(*payload);
+         to_decode = l - sizeof(*header) - sizeof(*payload);
+ 
+@@ -943,6 +939,8 @@ static int a2dp_process_push(struct userdata *u) {
+ /*             pa_log_debug("SBC: decoded: %lu; written: %lu", (unsigned long) decoded, (unsigned long) written); */
+ /*             pa_log_debug("SBC: frame_length: %lu; codesize: %lu", (unsigned long) a2dp->frame_length, (unsigned long) a2dp->codesize); */
+ 
++            total_written += written;
++
+             /* Reset frame length, it can be changed due to bitpool change */
+             a2dp->frame_length = sbc_get_frame_length(&a2dp->sbc);
+ 
+@@ -958,6 +956,10 @@ static int a2dp_process_push(struct userdata *u) {
+             to_write -= written;
+         }
+ 
++        u->read_index += (uint64_t) total_written;
++        pa_smoother_put(u->read_smoother, tstamp, pa_bytes_to_usec(u->read_index, &u->sample_spec));
++        pa_smoother_resume(u->read_smoother, tstamp, true);
++
+         memchunk.length -= to_write;
+ 
+         pa_memblock_release(memchunk.memblock);
+diff --git a/src/modules/bluetooth/module-bluez5-device.c b/src/modules/bluetooth/module-bluez5-device.c
+index 61723f8..857a972 100644
+--- a/src/modules/bluetooth/module-bluez5-device.c
++++ b/src/modules/bluetooth/module-bluez5-device.c
+@@ -402,6 +402,7 @@ static int a2dp_process_push(struct userdata *u) {
+         void *d;
+         ssize_t l;
+         size_t to_write, to_decode;
++        size_t total_written = 0;
+ 
+         a2dp_prepare_buffer(u);
+ 
+@@ -428,17 +429,12 @@ static int a2dp_process_push(struct userdata *u) {
+ 
+         pa_assert((size_t) l <= sbc_info->buffer_size);
+ 
+-        u->read_index += (uint64_t) l;
+-
+         /* TODO: get timestamp from rtp */
+         if (!found_tstamp) {
+             /* pa_log_warn("Couldn't find SO_TIMESTAMP data in auxiliary recvmsg() data!"); */
+             tstamp = pa_rtclock_now();
+         }
+ 
+-        pa_smoother_put(u->read_smoother, tstamp, pa_bytes_to_usec(u->read_index, &u->sample_spec));
+-        pa_smoother_resume(u->read_smoother, tstamp, true);
+-
+         p = (uint8_t*) sbc_info->buffer + sizeof(*header) + sizeof(*payload);
+         to_decode = l - sizeof(*header) - sizeof(*payload);
+ 
+@@ -461,6 +457,8 @@ static int a2dp_process_push(struct userdata *u) {
+                 return 0;
+             }
+ 
++            total_written += written;
++
+             /* Reset frame length, it can be changed due to bitpool change */
+             sbc_info->frame_length = sbc_get_frame_length(&sbc_info->sbc);
+ 
+@@ -476,6 +474,10 @@ static int a2dp_process_push(struct userdata *u) {
+             to_write -= written;
+         }
+ 
++        u->read_index += (uint64_t) total_written;
++        pa_smoother_put(u->read_smoother, tstamp, pa_bytes_to_usec(u->read_index, &u->sample_spec));
++        pa_smoother_resume(u->read_smoother, tstamp, true);
++
+         memchunk.length -= to_write;
+ 
+         pa_memblock_release(memchunk.memblock);
+-- 
+1.9.3
+

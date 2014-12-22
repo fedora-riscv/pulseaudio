@@ -18,7 +18,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        7%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        25%{?gitcommit:.git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -30,12 +30,41 @@ Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%
 %endif
 Source1:        default.pa-for-gdm
 
+## wtay patches (bluez5/HSP love mostly)
+# from http://cgit.freedesktop.org/~wtay/pulseaudio
+Patch1: 0001-module-switch-on-port-available-Don-t-switch-profile.patch
+Patch2: 0002-Name-HDMI-outputs-uniquely.patch
+Patch3: 0003-rtp-recv-fix-crash-on-empty-UDP-packets-CVE-2014-397.patch
+Patch4: 0004-bluetooth-Don-t-abort-on-SBC-decoding-error.patch
+Patch5: 0005-bluetooth-Fix-timing-to-count-based-on-decoded-data.patch
+Patch6: 0006-bluetooth-Remove-redundant-assignments.patch
+Patch7: 0007-bluetooth-Fix-a-copy-paste-error-in-log-message.patch
+Patch8: 0008-bluetooth-Fix-lines-going-over-column-128.patch
+Patch9: 0009-bluetooth-Change-BlueZ-5-card-profile-name-from-a2dp.patch
+Patch10: 0010-bluetooth-Rename-variable-to-improve-code-readabilit.patch
+Patch11: 0011-bluetooth-Notify-the-main-thread-of-a-stream-fd-HUP.patch
+Patch12: 0012-bluetooth-Add-valid-flag-to-pa_bluetooth_adapter.patch
+Patch13: 0013-bluetooth-Refactor-device-validity-management.patch
+Patch14: 0014-bluetooth-Refactor-POLLHUP-handling.patch
+Patch15: 0015-bluetooth-Add-basic-support-for-HEADSET-profiles.patch
+Patch16: 0016-bluetooth-Assert-transport-has-a-matching-profile.patch
+Patch17: 0017-bluetooth-Add-BlueZ-5-headset-profile-names-in-polic.patch
+Patch18: 0018-bluetooth-Create-NULL-backend.patch
+Patch19: 0019-bluetooth-Always-initialize-profile-available.patch
+Patch20: 0020-bluetooth-Add-pa_bluetooth_transport_set_state.patch
+Patch21: 0021-bluetooth-Add-pa_bluetooth_transport_unlink.patch
+Patch22: 0022-bluetooth-Only-create-backend-instance-once-objects-.patch
+Patch23: 0023-bluetooth-Add-discovery-to-pa_bluetooth_backend_new.patch
+Patch24: 0024-bluetooth-Switch-transport-state-to-idle-in-case-of-.patch
+Patch25: 0025-bluetooth-Allow-policy-module-to-pick-off-profile.patch
+Patch26: 0026-bluetooth-Move-stuff-to-pa_bluetooth_transport_put-u.patch
+Patch27: 0027-bluez5-device-use-get_profile_direction.patch
+Patch28: 0028-bluez5-util-add-destroy-function.patch
+Patch29: 0029-backend-native-add-a-new-native-headset-backend.patch
+Patch30: 0030-backend-native-implement-volume-control.patch
+Patch31: 0031-backend-native-fix-commands.patch
+
 ## upstream patches
-# https://bugzilla.redhat.com/show_bug.cgi?id=1035025
-# https://bugs.freedesktop.org/show_bug.cgi?id=73375
-Patch036: 0036-module-switch-on-port-available-Don-t-switch-profile.patch
-Patch039: 0039-Name-HDMI-outputs-uniquely.patch
-Patch112: 0112-rtp-recv-fix-crash-on-empty-UDP-packets-CVE-2014-397.patch
 
 ## upstreamable patches
 # simplify and ship only 1 autostart file
@@ -43,6 +72,7 @@ Patch501: pulseaudio-x11_device_manager.patch
 # set X-KDE-autostart-phase=1
 Patch502: pulseaudio-4.0-kde_autostart_phase.patch
 
+BuildRequires:  automake libtool
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  intltool
@@ -221,14 +251,13 @@ Requires(pre):  gdm
 This package contains GDM integration hooks for the PulseAudio sound server.
 
 %prep
-%setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+#setup -q -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+%autosetup -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}} -p1
 
-%patch036 -p1 -b .0036
-%patch039 -p1 -b .0039
-%patch112 -p1 -b .0112
+#patch501 -p1 -b .x11_device_manager
+#patch502 -p1 -b .kde_autostart_phase
 
-%patch501 -p1 -b .x11_device_manager
-%patch502 -p1 -b .kde_autostart_phase
+NOCONFIGURE=1 ./bootstrap.sh
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -319,7 +348,7 @@ make check \
 
 %pre
 getent group pulse-access >/dev/null || groupadd -r pulse-access
-getent group pulse-access >/dev/null || groupadd -r pulse-rt
+getent group pulse-rt >/dev/null || groupadd -r pulse-rt
 getent group pulse >/dev/null || groupadd -f -g 171 -r pulse
 if ! getent passwd pulse >/dev/null ; then
     if ! getent passwd 171 >/dev/null ; then
@@ -559,6 +588,21 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Fri Nov 14 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-25
+- pull in wtay bluez5/HSP fixes on top of stock pa-5.0 (#1045548)
+
+* Fri Nov 14 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-11
+- %%pre: redo pulse-rt group fix
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 5.0-10
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Tue Jul 29 2014 Kalev Lember <kalevlember@gmail.com> - 5.0-9
+- Rebuilt once more for libjson-c
+
+* Mon Jul 28 2014 Peter Robinson <pbrobinson@fedoraproject.org> 5.0-8
+- Rebuild (libjson-c)
+
 * Wed Jul 16 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-7
 - Provide padsp-32, /usr/bin/padsp is native arch only (#856146)
 

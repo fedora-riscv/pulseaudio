@@ -1,7 +1,7 @@
-From a5ba31bf9627b6c7d7f5e03cdccff2d52fa3299d Mon Sep 17 00:00:00 2001
+From cc2dd7ce6c88891d3387b8d5daeab20e567a7228 Mon Sep 17 00:00:00 2001
 From: "Alexander E. Patrakov" <patrakov@gmail.com>
 Date: Thu, 10 Apr 2014 21:13:43 +0600
-Subject: [PATCH 039/156] Name HDMI outputs uniquely
+Subject: [PATCH 02/31] Name HDMI outputs uniquely
 
 On Haswell hardware, there are multiple HDMI outputs capable of
 digital sound output. As they were identically named, KDE's control

@@ -1,0 +1,99 @@
+From bf236c09667c0a38139e79a08a8c144b3f0a6eb7 Mon Sep 17 00:00:00 2001
+From: Tanu Kaskinen <tanu.kaskinen@linux.intel.com>
+Date: Tue, 7 Oct 2014 14:50:21 +0300
+Subject: [PATCH 26/31] bluetooth: Move stuff to
+ pa_bluetooth_transport_put/unlink()
+
+This should not have any effect on behaviour. The goal is to align
+with the pattern that I think we should follow:
+
+Object initialization:
+ - put() is the place to create references from other objects to the
+   newly created object. In this case, adding the transport to
+   discovery->transports was moved from new() to put, and adding the
+   transport to device->transports was moved from set_state() to
+   put().
+
+Object destruction:
+ - unlink() undoes put() and removes all references from other objects
+   to the object being unlinked. In this case setting the
+   device->transports pointer to NULL was moved from set_state() to
+   unlink(), and setting the discovery->transports pointer to NULL was
+   moved from free() to unlink().
+ - free() undoes new(), but also calls unlink() so that object owners
+   don't need to remember to call unlink() before free().
+---
+ src/modules/bluetooth/bluez5-util.c | 19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
+
+diff --git a/src/modules/bluetooth/bluez5-util.c b/src/modules/bluetooth/bluez5-util.c
+index 2967e24..85d4f93 100644
+--- a/src/modules/bluetooth/bluez5-util.c
++++ b/src/modules/bluetooth/bluez5-util.c
+@@ -149,8 +149,6 @@ pa_bluetooth_transport *pa_bluetooth_transport_new(pa_bluetooth_device *d, const
+         memcpy(t->config, config, size);
+     }
+ 
+-    pa_assert_se(pa_hashmap_put(d->discovery->transports, t->path, t) >= 0);
+-
+     return t;
+ }
+ 
+@@ -181,10 +179,6 @@ void pa_bluetooth_transport_set_state(pa_bluetooth_transport *t, pa_bluetooth_tr
+                  t->path, transport_state_to_string(t->state), transport_state_to_string(state));
+ 
+     t->state = state;
+-    if (state == PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED)
+-        t->device->transports[t->profile] = NULL;
+-    else
+-        t->device->transports[t->profile] = t;
+ 
+     pa_hook_fire(&t->device->discovery->hooks[PA_BLUETOOTH_HOOK_TRANSPORT_STATE_CHANGED], t);
+ 
+@@ -193,17 +187,26 @@ void pa_bluetooth_transport_set_state(pa_bluetooth_transport *t, pa_bluetooth_tr
+ }
+ 
+ void pa_bluetooth_transport_put(pa_bluetooth_transport *t) {
++    pa_assert(t);
++
++    t->device->transports[t->profile] = t;
++    pa_assert_se(pa_hashmap_put(t->device->discovery->transports, t->path, t) >= 0);
+     pa_bluetooth_transport_set_state(t, PA_BLUETOOTH_TRANSPORT_STATE_IDLE);
+ }
+ 
+ void pa_bluetooth_transport_unlink(pa_bluetooth_transport *t) {
++    pa_assert(t);
++
+     pa_bluetooth_transport_set_state(t, PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED);
++    pa_hashmap_remove(t->device->discovery->transports, t->path);
++    t->device->transports[t->profile] = NULL;
+ }
+ 
+ void pa_bluetooth_transport_free(pa_bluetooth_transport *t) {
+     pa_assert(t);
+ 
+-    pa_hashmap_remove(t->device->discovery->transports, t->path);
++    pa_bluetooth_transport_unlink(t);
++
+     pa_xfree(t->owner);
+     pa_xfree(t->path);
+     pa_xfree(t->config);
+@@ -418,7 +421,6 @@ static void device_free(pa_bluetooth_device *d) {
+         if (!(t = d->transports[i]))
+             continue;
+ 
+-        pa_bluetooth_transport_set_state(t, PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED);
+         pa_bluetooth_transport_free(t);
+     }
+ 
+@@ -1446,7 +1448,6 @@ static DBusMessage *endpoint_clear_configuration(DBusConnection *conn, DBusMessa
+ 
+     if ((t = pa_hashmap_get(y->transports, path))) {
+         pa_log_debug("Clearing transport %s profile %s", t->path, pa_bluetooth_profile_to_string(t->profile));
+-        pa_bluetooth_transport_set_state(t, PA_BLUETOOTH_TRANSPORT_STATE_DISCONNECTED);
+         pa_bluetooth_transport_free(t);
+     }
+ 
+-- 
+1.9.3
+
