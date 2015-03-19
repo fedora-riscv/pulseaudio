@@ -1,3 +1,5 @@
 /.*.log
 /*.src.rpm
 /pulseaudio-*.tar.xz
+/pulseaudio-*.tar.xz.md5
+/pulseaudio-*.tar.xz.sha1

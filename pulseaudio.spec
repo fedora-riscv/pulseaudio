@@ -1,8 +1,9 @@
-%global pa_major   5.0
+%global pa_major   6.0
 #global pa_minor   0
 
-#global gitrel     266
-#global gitcommit  f81e3e1d7852c05b4b737ac7dac4db95798f0117
+#global snap       20141103
+#global gitrel     327
+#global gitcommit  aec811798cd883a454b9b5cd82c77831906bbd2d
 #global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 %ifarch %{ix86} x86_64 %{arm}
@@ -18,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        25%{?gitcommit:.git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -27,52 +28,19 @@ URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        pulseaudio-%{version}-%{gitrel}-g%{shortcommit}.tar.xz
 %else
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
+Source1:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz.md5
+Source2:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz.sha1
 %endif
-Source1:        default.pa-for-gdm
 
-## wtay patches (bluez5/HSP love mostly)
-# from http://cgit.freedesktop.org/~wtay/pulseaudio
-Patch1: 0001-module-switch-on-port-available-Don-t-switch-profile.patch
-Patch2: 0002-Name-HDMI-outputs-uniquely.patch
-Patch3: 0003-rtp-recv-fix-crash-on-empty-UDP-packets-CVE-2014-397.patch
-Patch4: 0004-bluetooth-Don-t-abort-on-SBC-decoding-error.patch
-Patch5: 0005-bluetooth-Fix-timing-to-count-based-on-decoded-data.patch
-Patch6: 0006-bluetooth-Remove-redundant-assignments.patch
-Patch7: 0007-bluetooth-Fix-a-copy-paste-error-in-log-message.patch
-Patch8: 0008-bluetooth-Fix-lines-going-over-column-128.patch
-Patch9: 0009-bluetooth-Change-BlueZ-5-card-profile-name-from-a2dp.patch
-Patch10: 0010-bluetooth-Rename-variable-to-improve-code-readabilit.patch
-Patch11: 0011-bluetooth-Notify-the-main-thread-of-a-stream-fd-HUP.patch
-Patch12: 0012-bluetooth-Add-valid-flag-to-pa_bluetooth_adapter.patch
-Patch13: 0013-bluetooth-Refactor-device-validity-management.patch
-Patch14: 0014-bluetooth-Refactor-POLLHUP-handling.patch
-Patch15: 0015-bluetooth-Add-basic-support-for-HEADSET-profiles.patch
-Patch16: 0016-bluetooth-Assert-transport-has-a-matching-profile.patch
-Patch17: 0017-bluetooth-Add-BlueZ-5-headset-profile-names-in-polic.patch
-Patch18: 0018-bluetooth-Create-NULL-backend.patch
-Patch19: 0019-bluetooth-Always-initialize-profile-available.patch
-Patch20: 0020-bluetooth-Add-pa_bluetooth_transport_set_state.patch
-Patch21: 0021-bluetooth-Add-pa_bluetooth_transport_unlink.patch
-Patch22: 0022-bluetooth-Only-create-backend-instance-once-objects-.patch
-Patch23: 0023-bluetooth-Add-discovery-to-pa_bluetooth_backend_new.patch
-Patch24: 0024-bluetooth-Switch-transport-state-to-idle-in-case-of-.patch
-Patch25: 0025-bluetooth-Allow-policy-module-to-pick-off-profile.patch
-Patch26: 0026-bluetooth-Move-stuff-to-pa_bluetooth_transport_put-u.patch
-Patch27: 0027-bluez5-device-use-get_profile_direction.patch
-Patch28: 0028-bluez5-util-add-destroy-function.patch
-Patch29: 0029-backend-native-add-a-new-native-headset-backend.patch
-Patch30: 0030-backend-native-implement-volume-control.patch
-Patch31: 0031-backend-native-fix-commands.patch
+Source5:        default.pa-for-gdm
 
 ## upstream patches
 
 ## upstreamable patches
-# simplify and ship only 1 autostart file
-Patch501: pulseaudio-x11_device_manager.patch
-# set X-KDE-autostart-phase=1
-Patch502: pulseaudio-4.0-kde_autostart_phase.patch
 
 BuildRequires:  automake libtool
+BuildRequires:  pkgconfig(bash-completion)
+%global bash_completionsdir %(pkg-config --variable=completionsdir bash-completion 2>/dev/null || echo '/etc/bash_completion.d')
 BuildRequires:  m4
 BuildRequires:  libtool-ltdl-devel
 BuildRequires:  intltool
@@ -114,7 +82,6 @@ BuildRequires:  openssl-devel
 BuildRequires:  orc-devel
 BuildRequires:  libtdb-devel
 BuildRequires:  speex-devel >= 1.2
-BuildRequires:  systemd-devel
 BuildRequires:  libasyncns-devel
 BuildRequires:  systemd-devel >= 184
 BuildRequires:  json-c-devel
@@ -250,14 +217,9 @@ Requires(pre):  gdm
 %description gdm-hooks
 This package contains GDM integration hooks for the PulseAudio sound server.
 
+
 %prep
-#setup -q -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
-%autosetup -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}} -p1
-
-#patch501 -p1 -b .x11_device_manager
-#patch502 -p1 -b .kde_autostart_phase
-
-NOCONFIGURE=1 ./bootstrap.sh
+%setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -273,9 +235,10 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 %endif
 %endif
 
-%build
 
+%build
 %configure \
+  --disable-silent-rules \
   --disable-static \
   --disable-rpath \
   --with-system-user=pulse \
@@ -289,7 +252,7 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 %ifarch %{arm}
   --disable-neon-opt \
 %endif
-  --enable-systemd \
+  --disable-systemd-daemon \
 %if 0%{?with_webrtc}
   --enable-webrtc-aec \
 %endif
@@ -298,6 +261,7 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 make %{?_smp_mflags} V=1
 make doxygen
+
 
 %install
 make install DESTDIR=$RPM_BUILD_ROOT
@@ -322,16 +286,20 @@ mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 mv -fv $RPM_BUILD_ROOT/lib/udev/rules.d/90-pulseaudio.rules $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/pulse
-install -p -m644 -D %{SOURCE1} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/default.pa
+install -p -m644 -D %{SOURCE5} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/default.pa
+
+# bash completions
+%if "%{bash_completionsdir}" != "/etc/bash_completion.d"
+mkdir -p $RPM_BUILD_ROOT%{bash_completionsdir}
+mv $RPM_BUILD_ROOT/etc/bash_completion.d/* \
+   $RPM_BUILD_ROOT%{bash_completionsdir}/
+%endif
 
 ## unpackaged files
 # extraneous libtool crud
 rm -fv $RPM_BUILD_ROOT%{_libdir}/*.la $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/*.la
 # PA_MODULE_DEPRECATED("Please use module-udev-detect instead of module-detect!");
 rm -fv $RPM_BUILD_ROOT%{_libdir}/pulse-%{pa_major}/modules/module-detect.so
-# x11_device_manager folds -kde functionality into single -x11 autostart, so this
-# one is no longer needed
-rm -fv $RPM_BUILD_ROOT%{_sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
 
 %find_lang %{name}
 
@@ -371,13 +339,15 @@ exit 0
 
 %files
 %doc README LICENSE GPL LGPL
-%dir %{_sysconfdir}/pulse/
+## already owned by -libs, see also https://bugzilla.redhat.com/show_bug.cgi?id=909690
+#dir %{_sysconfdir}/pulse/
 %config(noreplace) %{_sysconfdir}/pulse/daemon.conf
 %config(noreplace) %{_sysconfdir}/pulse/default.pa
 %config(noreplace) %{_sysconfdir}/pulse/system.pa
 %{_sysconfdir}/dbus-1/system.d/pulseaudio-system.conf
-%dir %{_sysconfdir}/bash_completion.d/
-%{_sysconfdir}/bash_completion.d/pulseaudio-bash-completion.sh
+%{bash_completionsdir}/*
+#{_prefix}/lib/systemd/user/pulseaudio.service
+#{_prefix}/lib/systemd/user/pulseaudio.socket
 %{_bindir}/pulseaudio
 %{_libdir}/libpulsecore-%{pa_major}.so
 %dir %{_libdir}/pulse-%{pa_major}/
@@ -471,6 +441,9 @@ exit 0
 %{_prefix}/lib/udev/rules.d/90-pulseaudio.rules
 %dir %{_libexecdir}/pulse
 %attr(0700, pulse, pulse) %dir %{_localstatedir}/lib/pulse
+%dir %{_datadir}/zsh/
+%dir %{_datadir}/zsh/site-functions/
+%{_datadir}/zsh/site-functions/_pulseaudio
 
 %files qpaeq
 %{_bindir}/qpaeq
@@ -487,15 +460,12 @@ exit 0
 
 %files module-x11
 %{_sysconfdir}/xdg/autostart/pulseaudio.desktop
-## no longer included per x11_device_manager.patch
-#config %{_sysconfdir}/xdg/autostart/pulseaudio-kde.desktop
-%{_bindir}/start-pulseaudio-kde
+#{_bindir}/start-pulseaudio-kde
 %{_bindir}/start-pulseaudio-x11
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-bell.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-publish.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-xsmp.so
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-cork-request.so
-%{_mandir}/man1/start-pulseaudio-kde.1.gz
 %{_mandir}/man1/start-pulseaudio-x11.1.gz
 
 %files module-zeroconf
@@ -558,6 +528,9 @@ exit 0
 %{_datadir}/vala/vapi/libpulse.deps
 %{_datadir}/vala/vapi/libpulse-mainloop-glib.vapi
 %{_datadir}/vala/vapi/libpulse-mainloop-glib.deps
+%{_datadir}/vala/vapi/libpulse-simple.deps
+%{_datadir}/vala/vapi/libpulse-simple.vapi
+
 %dir %{_libdir}/cmake
 %{_libdir}/cmake/PulseAudio/
 
@@ -588,6 +561,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Thu Mar 19 2015 Richard Hughes <rhughes@redhat.com> 6.0-2
+- pulseaudio-6.0 (#1192384)
+
 * Fri Nov 14 2014 Rex Dieter <rdieter@fedoraproject.org> 5.0-25
 - pull in wtay bluez5/HSP fixes on top of stock pa-5.0 (#1045548)
 
