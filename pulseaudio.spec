@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}.1
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -33,6 +33,10 @@ Source2:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%
 %endif
 
 Source5:        default.pa-for-gdm
+
+# revert upstream commit to rely solely on autospawn for autostart
+# see also https://bugzilla.redhat.com/show_bug.cgi?id=1206764
+Patch1: pulseaudio-autostart.patch
 
 ## upstream patches
 
@@ -220,6 +224,10 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+
+%if 0%{?fedora} < 22
+%patch1 -p1 -R -b .autostart
+%endif
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -561,6 +569,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Sat Apr 04 2015 Rex Dieter <rdieter@fedoraproject.org> 6.0-2.1
+- PulseAudio 6 update breaks autostart (#1206764)
+
 * Thu Mar 19 2015 Richard Hughes <rhughes@redhat.com> 6.0-2
 - pulseaudio-6.0 (#1192384)
 
