@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}.1
+Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -39,6 +39,8 @@ Source5:        default.pa-for-gdm
 Patch1: pulseaudio-autostart.patch
 
 ## upstream patches
+Patch35: 0035-pstream-Don-t-split-non-SHM-memblocks.patch
+Patch37: 0037-pstream-Remove-unnecessary-if-condition.patch
 
 ## upstreamable patches
 
@@ -228,6 +230,8 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %if 0%{?fedora} < 22
 %patch1 -p1 -R -b .autostart
 %endif
+%patch35 -p1 -b .0035
+%patch37 -p1 -b .0037
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -569,6 +573,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Thu Jun 11 2015 Rex Dieter <rdieter@fedoraproject.org> - 6.0-4
+- pulseaudio 6.0 breaks 5.1 network sound configuration (#1230957)
+
 * Sat Apr 04 2015 Rex Dieter <rdieter@fedoraproject.org> 6.0-2.1
 - PulseAudio 6 update breaks autostart (#1206764)
 
