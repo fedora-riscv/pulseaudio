@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        5%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -34,8 +34,9 @@ Source2:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%
 
 Source5:        default.pa-for-gdm
 
-# revert upstream commit to rely solely on autospawn for autostart
-# see also https://bugzilla.redhat.com/show_bug.cgi?id=1206764
+# revert upstream commit to rely solely on autospawn for autostart, instead
+# include a fallback to manual launch when autospawn fails, like when
+# user disables autospawn, or logging in as root
 Patch1: pulseaudio-autostart.patch
 
 ## upstream patches
@@ -227,9 +228,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
-%if 0%{?fedora} < 22
 %patch1 -p1 -R -b .autostart
-%endif
 %patch35 -p1 -b .0035
 %patch37 -p1 -b .0037
 
@@ -573,6 +572,9 @@ exit 0
 %attr(0600, gdm, gdm) %{_localstatedir}/lib/gdm/.pulse/default.pa
 
 %changelog
+* Mon Jun 22 2015 Rex Dieter <rdieter@fedoraproject.org> - 6.0-5
+- better autospawn.patch, handle case were autospawn is disabled (or otherwise doesn't work, like for root user)
+
 * Thu Jun 11 2015 Rex Dieter <rdieter@fedoraproject.org> - 6.0-4
 - pulseaudio 6.0 breaks 5.1 network sound configuration (#1230957)
 
