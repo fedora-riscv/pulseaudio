@@ -228,7 +228,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
-%patch1 -p1 -R -b .autostart
+%patch1 -p1 -b .autostart
 %patch35 -p1 -b .0035
 %patch37 -p1 -b .0037
 
