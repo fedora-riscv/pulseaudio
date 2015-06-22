@@ -573,7 +573,7 @@ exit 0
 
 %changelog
 * Mon Jun 22 2015 Rex Dieter <rdieter@fedoraproject.org> - 6.0-5
-- better autospawn.patch, handle case were autospawn is disabled (or otherwise doesn't work, like for root user)
+- better autostart.patch, handle case were autospawn is disabled (or otherwise doesn't work, like for root user)
 
 * Thu Jun 11 2015 Rex Dieter <rdieter@fedoraproject.org> - 6.0-4
 - pulseaudio 6.0 breaks 5.1 network sound configuration (#1230957)
