@@ -6,7 +6,7 @@ diff -up pulseaudio-6.0/src/daemon/start-pulseaudio-x11.in.autostart pulseaudio-
  set -e
  
 +# probe to test if autospawn works, else resort to starting manually
-+@PACTL_BINARY@ info 2>&1 > /dev/null || @PA_BINARY@ --start "$@"
++@PACTL_BINARY@ info > /dev/null 2>&1 || @PA_BINARY@ --start "$@"
 +
  if [ x"$DISPLAY" != x ] ; then
  
