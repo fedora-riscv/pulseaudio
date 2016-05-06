@@ -19,7 +19,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}.1
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -40,6 +40,7 @@ Source5:        default.pa-for-gdm
 Patch1: pulseaudio-autostart.patch
 
 ## upstream patches
+Patch86: 0086-alsa-Don-t-disable-timer-based-scheduling-on-USB-dev.patch
 
 ## upstreamable patches
 # https://bugs.freedesktop.org/show_bug.cgi?id=92142
@@ -228,6 +229,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
+%patch86 -p1 -b .0086
 %patch1 -p1 -b .autostart
 %patch50 -p1 -b .localedir
 # avoid re-autoconf'ing from patch50
@@ -562,6 +564,9 @@ exit 0
 
 
 %changelog
+* Fri May 06 2016 Rex Dieter <rdieter@fedoraproject.org> - 7.1-1.1
+- backport: usb-audio devices latency (#1304890)
+
 * Sat Oct 31 2015 Rex Dieter <rdieter@fedoraproject.org> - 7.1-1
 - pulseaudio-7.1 (#1276811)
 
