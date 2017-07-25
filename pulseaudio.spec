@@ -25,7 +25,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        5%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -74,6 +74,10 @@ Patch115: 0015-Add-flatpak-access-control.patch
 Patch116: 0016-Make-flatpak-module-load.patch
 Patch117: 0017-Make-sure-to-set-the-pid-in-auth_cb.patch
 Patch118: 0018-Use-permissive-policy-by-default.patch
+
+# HDMI LPE support: https://bugs.freedesktop.org/show_bug.cgi?id=100488
+Patch119: pulseaudio-discuss-alsa-don-t-assume-that-hw-x-is-an-analog-output.patch
+Patch120: Fix-jack-detection-for-Intel-HDMI-LPE.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  pkgconfig(bash-completion)
@@ -600,6 +604,9 @@ exit 0
 
 
 %changelog
+* Tue Jul 25 2017 Bastien Nocera <bnocera@redhat.com> - 10.0-5
++ Add support for Intel HDMI LPE (stops crash loops on boot)
+
 * Mon Feb 13 2017 Wim Taymans <wtaymans@redhat.com> - 10.0-4
 - Add flatpak access control
 

@@ -1,0 +1,48 @@
+diff --git a/src/modules/alsa/alsa-mixer.c b/src/modules/alsa/alsa-mixer.c
+index 3dbf6b1d0..f59cad394 100644
+--- a/src/modules/alsa/alsa-mixer.c
++++ b/src/modules/alsa/alsa-mixer.c
+@@ -4015,7 +4015,8 @@ static int mapping_verify(pa_alsa_mapping *m, const pa_channel_map *bonus) {
+         { "iec958-ac3-surround-51", N_("Digital Surround 5.1 (IEC958/AC3)") },
+         { "iec958-dts-surround-51", N_("Digital Surround 5.1 (IEC958/DTS)") },
+         { "hdmi-stereo",            N_("Digital Stereo (HDMI)") },
+-        { "hdmi-surround-51",       N_("Digital Surround 5.1 (HDMI)") }
++        { "hdmi-surround-51",       N_("Digital Surround 5.1 (HDMI)") },
++        { "unknown-stereo",         N_("Stereo") },
+     };
+ 
+     pa_assert(m);
+@@ -4152,6 +4153,7 @@ static int profile_verify(pa_alsa_profile *p) {
+         { "output:analog-stereo+input:analog-stereo", N_("Analog Stereo Duplex") },
+         { "output:iec958-stereo+input:iec958-stereo", N_("Digital Stereo Duplex (IEC958)") },
+         { "output:multichannel-output+input:multichannel-input", N_("Multichannel Duplex") },
++        { "output:unknown-stereo+input:unknown-stereo", N_("Stereo Duplex") },
+         { "off",                                      N_("Off") }
+     };
+ 
+diff --git a/src/modules/alsa/mixer/profile-sets/default.conf b/src/modules/alsa/mixer/profile-sets/default.conf
+index 470eb994c..f412058ff 100644
+--- a/src/modules/alsa/mixer/profile-sets/default.conf
++++ b/src/modules/alsa/mixer/profile-sets/default.conf
+@@ -109,7 +109,7 @@ paths-input = analog-input-front-mic analog-input-rear-mic analog-input-internal
+ priority = 2
+ 
+ [Mapping analog-stereo]
+-device-strings = front:%f hw:%f
++device-strings = front:%f
+ channel-map = left,right
+ paths-output = analog-output analog-output-lineout analog-output-speaker analog-output-headphones analog-output-headphones-2
+ paths-input = analog-input-front-mic analog-input-rear-mic analog-input-internal-mic analog-input-dock-mic analog-input analog-input-mic analog-input-linein analog-input-aux analog-input-video analog-input-tvtuner analog-input-fm analog-input-mic-line analog-input-headphone-mic analog-input-headset-mic
+@@ -460,6 +460,12 @@ priority = 1
+ direction = input
+ paths-input = multichannel-input
+ 
++[Mapping unknown-stereo]
++device-strings = hw:%f
++channel-map = front-left,front-right
++fallback = yes
++priority = 1
++
+ ; An example for defining multiple-sink profiles
+ #[Profile output:analog-stereo+output:iec958-stereo+input:analog-stereo]
+ #description = Foobar
