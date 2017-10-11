@@ -127,7 +127,6 @@ BuildRequires:  pkgconfig(webrtc-audio-processing) >= 0.2
 %if 0%{?tests}
 BuildRequires:  pkgconfig(check)
 %endif
-BuildRequires:  git
 
 # retired along with -libs-zeroconf, add Obsoletes here for lack of anything better
 Obsoletes:      padevchooser < 1.0
@@ -256,7 +255,30 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 
 
 %prep
-%autosetup -S git -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+%setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
+
+%patch1 -p1 -b .autostart
+%patch2 -p1 -b .disable_flat_volumes
+%patch3 -p1 -b .affinity
+
+%patch101 -p1 -b .101
+%patch102 -p1 -b .102
+%patch103 -p1 -b .103
+%patch104 -p1 -b .104
+%patch105 -p1 -b .105
+%patch106 -p1 -b .106
+%patch107 -p1 -b .107
+%patch108 -p1 -b .108
+%patch109 -p1 -b .109
+%patch110 -p1 -b .110
+%patch111 -p1 -b .111
+%patch112 -p1 -b .112
+%patch113 -p1 -b .113
+%patch114 -p1 -b .114
+%patch115 -p1 -b .115
+%patch116 -p1 -b .116
+%patch117 -p1 -b .117
+%patch118 -p1 -b .118
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
