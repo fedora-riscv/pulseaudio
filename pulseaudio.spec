@@ -1,4 +1,4 @@
-%global pa_major   10.0
+%global pa_major   11.1
 #global pa_minor   0
 
 #global snap       20141103
@@ -25,7 +25,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -54,26 +54,15 @@ Patch2: pulseaudio-9.0-disable_flat_volumes.patch
 Patch3: pulseaudio-8.99.2-getaffinity.patch
 
 ## upstream patches
+Patch4: 0004-alsa-mixer-Add-support-for-usb-audio-in-the-Dell-doc.patch
+Patch9: 0009-alsa-mixer-set-PCM-Capture-Source-for-iec958-input.patch
+Patch10: 0010-build-sys-add-iec958-stereo-input.conf-to-dist_alsap.patch
+Patch15: 0015-alsa-mixer-round-not-truncate-in-to_alsa_dB.patch
+Patch16: 0016-alsa-mixer-add-support-for-Steelseries-Arctis-7-head.patch
+Patch18: 0018-build-sys-add-the-Arctis-configuration.patch
+Patch35: 0035-alsa-mixer-Prioritize-hdmi-mappings-over-iec958-mapp.patch
 
 ## upstreamable patches
-Patch101: 0001-tagstruct-add-copy-method.patch
-Patch102: 0002-tagstruct-don-t-forget-to-copy-the-length.patch
-Patch103: 0003-subscribe-fix-typo.patch
-Patch104: 0004-creds-add-pid-to-pa_creds-and-use-store-it-in-pa_cli.patch
-Patch105: 0005-access-Add-access-control-hooks.patch
-Patch106: 0006-module-access-add-example-access-module.patch
-Patch107: 0007-module-access-add-async-handler-for-record.patch
-Patch108: 0008-module-access-use-the-auth-hook-and-pid.patch
-Patch109: 0009-pulsecore-Move-pa_core-structure-into-its-own-header.patch
-Patch110: 0010-Don-t-access-pa_core-structures-directly.patch
-Patch111: 0011-Add-access-checks.patch
-Patch112: 0012-protocol-native-add-async-access-checks.patch
-Patch113: 0013-core-add-current_client.patch
-Patch114: 0014-core-ensure-maincontext-for-current-client.patch
-Patch115: 0015-Add-flatpak-access-control.patch
-Patch116: 0016-Make-flatpak-module-load.patch
-Patch117: 0017-Make-sure-to-set-the-pid-in-auth_cb.patch
-Patch118: 0018-Use-permissive-policy-by-default.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  pkgconfig(bash-completion)
@@ -96,11 +85,8 @@ BuildRequires:  avahi-devel
 %global enable_jack 1
 %endif
 BuildRequires:  libatomic_ops-static, libatomic_ops-devel
-%ifnarch s390 s390x
-%global bluez5 1
 BuildRequires:  pkgconfig(bluez) >= 5.0
 BuildRequires:  sbc-devel
-%endif
 BuildRequires:  libXt-devel
 BuildRequires:  xorg-x11-proto-devel
 BuildRequires:  libXtst-devel
@@ -180,15 +166,13 @@ Requires:       %{name}-utils
 %description module-zeroconf
 Zeroconf publishing module for the PulseAudio sound server.
 
-%if 0%{?bluez4} || 0%{?bluez5}
 %package module-bluetooth
 Summary:        Bluetooth support for the PulseAudio sound server
 Requires:       %{name}%{?_isa} = %{version}-%{release}
-Requires:       bluez%{?bluez5: >= 5.0}
+Requires:       bluez >= 5.0
 
 %description module-bluetooth
 Contains Bluetooth audio (A2DP/HSP/HFP) support for the PulseAudio sound server.
-%endif
 
 %if 0%{?enable_jack}
 %package module-jack
@@ -257,28 +241,18 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %prep
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
+## upstream patches
+%patch4 -p1
+%patch9 -p1
+%patch10 -p1
+%patch15 -p1
+%patch16 -p1
+%patch18 -p1
+%patch35 -p1
+
 %patch1 -p1 -b .autostart
 %patch2 -p1 -b .disable_flat_volumes
 %patch3 -p1 -b .affinity
-
-%patch101 -p1 -b .101
-%patch102 -p1 -b .102
-%patch103 -p1 -b .103
-%patch104 -p1 -b .104
-%patch105 -p1 -b .105
-%patch106 -p1 -b .106
-%patch107 -p1 -b .107
-%patch108 -p1 -b .108
-%patch109 -p1 -b .109
-%patch110 -p1 -b .110
-%patch111 -p1 -b .111
-%patch112 -p1 -b .112
-%patch113 -p1 -b .113
-%patch114 -p1 -b .114
-%patch115 -p1 -b .115
-%patch116 -p1 -b .116
-%patch117 -p1 -b .117
-%patch118 -p1 -b .118
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -289,9 +263,12 @@ sed -i.no_consolekit -e \
 sed -i.PACKAGE_VERSION -e "s|^PACKAGE_VERSION=.*|PACKAGE_VERSION=\'%{version}\'|" configure
 %else
 ## kill rpaths
-%if "%{_libdir}" != "/usr/lib"
-sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
-%endif
+# needed for (at least) patch18
+NOCONFIGURE=1 ./bootstrap.sh
+
+#if "%{_libdir}" != "/usr/lib"
+#sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
+#endif
 %endif
 
 
@@ -306,8 +283,8 @@ sed -i -e 's|"/lib /usr/lib|"/%{_lib} %{_libdir}|' configure
   --disable-oss-output \
   %{?enable_jack:--enable-jack}%{!?enable_jack:--disable-jack} \
   %{?enable_lirc:--enable-lirc}%{!?enable_lirc:--disable-lirc} \
-  %{?bluez4:--enable-bluez4}%{!?bluez4:--disable-bluez4} \
-  %{?bluez5:--enable-bluez5}%{!?bluez5:--disable-bluez5} \
+  --disable-bluez4 \
+  --enable-bluez5 \
 %ifarch %{arm}
   --disable-neon-opt \
 %endif
@@ -344,9 +321,6 @@ popd
 mkdir -p $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 mv -fv $RPM_BUILD_ROOT/lib/udev/rules.d/90-pulseaudio.rules $RPM_BUILD_ROOT%{_prefix}/lib/udev/rules.d
 
-# /var/lib/pulse seems unused, can consider dropping it?  -- rex
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/pulse
-mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/run/pulse
 install -p -m644 -D %{SOURCE5} $RPM_BUILD_ROOT%{_localstatedir}/lib/gdm/.pulse/default.pa
 
 ## unpackaged files
@@ -414,7 +388,7 @@ exit 0
 %if 0%{?with_webrtc}
 %{_libdir}/pulse-%{pa_major}/modules/libwebrtc-util.so
 %endif
-%{_libdir}/pulse-%{pa_major}/modules/module-access.so
+#{_libdir}/pulse-%{pa_major}/modules/module-access.so
 %{_libdir}/pulse-%{pa_major}/modules/module-allow-passthrough.so
 %{_libdir}/pulse-%{pa_major}/modules/module-alsa-sink.so
 %{_libdir}/pulse-%{pa_major}/modules/module-alsa-source.so
@@ -427,7 +401,7 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-dbus-protocol.so
 %{_libdir}/pulse-%{pa_major}/modules/module-filter-apply.so
 %{_libdir}/pulse-%{pa_major}/modules/module-filter-heuristics.so
-%{_libdir}/pulse-%{pa_major}/modules/module-flatpak.so
+#{_libdir}/pulse-%{pa_major}/modules/module-flatpak.so
 %{_libdir}/pulse-%{pa_major}/modules/module-device-manager.so
 %{_libdir}/pulse-%{pa_major}/modules/module-loopback.so
 %{_libdir}/pulse-%{pa_major}/modules/module-esound-compat-spawnfd.so
@@ -494,8 +468,6 @@ exit 0
 %{_mandir}/man5/pulse-daemon.conf.5*
 %{_prefix}/lib/udev/rules.d/90-pulseaudio.rules
 %dir %{_libexecdir}/pulse
-%attr(0700, pulse, pulse) %dir %{_localstatedir}/lib/pulse
-%attr(0700, pulse, pulse) %dir %{_localstatedir}/run/pulse
 %dir %{_datadir}/zsh/
 %dir %{_datadir}/zsh/site-functions/
 %{_datadir}/zsh/site-functions/_pulseaudio
@@ -538,14 +510,12 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-jack-source.so
 %endif
 
-%if 0%{?bluez4} || 0%{?bluez5}
 %files module-bluetooth
 %{_libdir}/pulse-%{pa_major}/modules/libbluez*-util.so
 %{_libdir}/pulse-%{pa_major}/modules/module-bluez*-device.so
 %{_libdir}/pulse-%{pa_major}/modules/module-bluez*-discover.so
 %{_libdir}/pulse-%{pa_major}/modules/module-bluetooth-discover.so
 %{_libdir}/pulse-%{pa_major}/modules/module-bluetooth-policy.so
-%endif
 
 %files module-gconf
 %{_libdir}/pulse-%{pa_major}/modules/module-gconf.so
@@ -622,6 +592,33 @@ exit 0
 
 
 %changelog
+* Mon Oct 09 2017 Rex Dieter <rdieter@fedoraproject.org> - 11.1-2
+- backport some alsa-mixer related fixes (#1492344)
+
+* Wed Sep 20 2017 Rex Dieter <rdieter@fedoraproject.org> - 11.1-1 
+- pulseaudio-11.1
+
+* Tue Sep 05 2017 Rex Dieter <rdieter@fedoraproject.org> - 11.0-1
+- pulseaudio-11.0
+
+* Mon Aug 28 2017 Pete Walter <pwalter@fedoraproject.org> - 10.99.1-6
+- Enable pulseaudio-module-bluetooth on s390x
+
+* Fri Aug 18 2017 Wim Taymans <wtaymans@redhat.com> - 10.99.1-5
+- Remove /var/run/pulse and /var/lib/pulse, they are directories in tmpfs
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.99.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Sun Jul 30 2017 Florian Weimer <fweimer@redhat.com> - 10.99.1-3
+- Rebuild with binutils fix for ppc64le (#1475636)
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 10.99.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Tue Jul 25 2017 Rex Dieter <rdieter@fedoraproject.org> - 10.99.1-1
+- pulseaudio-10.99.1 (#1474559)
+
 * Mon Feb 13 2017 Wim Taymans <wtaymans@redhat.com> - 10.0-4
 - Add flatpak access control
 
