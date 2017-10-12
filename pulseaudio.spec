@@ -25,7 +25,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -63,6 +63,8 @@ Patch18: 0018-build-sys-add-the-Arctis-configuration.patch
 Patch35: 0035-alsa-mixer-Prioritize-hdmi-mappings-over-iec958-mapp.patch
 
 ## upstreamable patches
+# patchset from https://bugs.freedesktop.org/show_bug.cgi?id=100488
+Patch100: Fix-Intel-HDMI-LPE-problems.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  pkgconfig(bash-completion)
@@ -249,6 +251,9 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch16 -p1
 %patch18 -p1
 %patch35 -p1
+
+## upstreamable patches
+%patch100 -p1
 
 %patch1 -p1 -b .autostart
 %patch2 -p1 -b .disable_flat_volumes
@@ -592,6 +597,9 @@ exit 0
 
 
 %changelog
+* Thu Oct 12 2017 Rex Dieter <rdieter@fedoraproject.org> - 11.1-3
+- include experiemental Intel HDMI LPE fixes (fdo#100488)
+
 * Mon Oct 09 2017 Rex Dieter <rdieter@fedoraproject.org> - 11.1-2
 - backport some alsa-mixer related fixes (#1492344)
 
