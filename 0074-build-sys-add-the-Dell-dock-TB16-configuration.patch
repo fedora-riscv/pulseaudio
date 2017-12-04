@@ -1,9 +1,9 @@
-From 4aed58955b87f5aa1dfd13725ca3a38774d152ca Mon Sep 17 00:00:00 2001
-From: Rex Dieter <rdieter@gmail.com>
-Date: Wed, 1 Nov 2017 09:03:05 -0500
-Subject: [PATCH 66/66] install dell-dock-tb16-usb-audio.conf
+From 2f1dcea363342154a1f6af7bd4ade3f87403b744 Mon Sep 17 00:00:00 2001
+From: Hui Wang <hui.wang@canonical.com>
+Date: Mon, 13 Nov 2017 10:17:19 +0800
+Subject: [PATCH 74/85] build-sys: add the Dell dock TB16 configuration
 
-introduced in 60c0edd5286dbb731c671ad3e6886c1e3e1eb067
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
 ---
  src/Makefile.am | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
