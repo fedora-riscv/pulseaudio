@@ -1,10 +1,10 @@
-%global pa_major   11.1
-#global pa_minor   0
+%global pa_major   12.0
+#global pa_minor   0 
 
-#global snap       20141103
-#global gitrel     327
-#global gitcommit  aec811798cd883a454b9b5cd82c77831906bbd2d
-#global shortcommit (c=%{gitcommit}; echo ${c:0:5})
+#global snap       20180411
+#global gitrel     129
+#global gitcommit  ba2b748d40f78b9d9f945b5422ca74d05f8d0d07
+#global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 # webrtc bits go wonky without this
 # see also https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org/thread/JQQ66XJSIT2FGTK2YQY7AXMEH5IXMPUX/
@@ -39,7 +39,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        18%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -64,47 +64,15 @@ Patch201: pulseaudio-autostart.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1265267
 Patch202: pulseaudio-9.0-disable_flat_volumes.patch
 
-# bz#1067470,  only start threads on activ CPUs
-# see also https://bugs.freedesktop.org/show_bug.cgi?id=96638
-Patch203: pulseaudio-8.99.2-getaffinity.patch
-
 # upstreamed exit_idle_time solution, set to 0 in managed environments
 Patch204: pulseaudio-11.1-exit_idle_time-2.patch
-
-# workaround rawhide build failures, avoid dup'd memfd_create declaration
-# https://bugs.freedesktop.org/show_bug.cgi?id=104733
-Patch205: pulseaudio-11.1-glibc_memfd.patch
 
 # disable autospawn
 Patch206: pulseaudio-11.1-autospawn_disable.patch
 
 ## upstream patches
-Patch4: 0004-alsa-mixer-Add-support-for-usb-audio-in-the-Dell-doc.patch
-Patch9: 0009-alsa-mixer-set-PCM-Capture-Source-for-iec958-input.patch
-Patch10: 0010-build-sys-add-iec958-stereo-input.conf-to-dist_alsap.patch
-Patch15: 0015-alsa-mixer-round-not-truncate-in-to_alsa_dB.patch
-Patch16: 0016-alsa-mixer-add-support-for-Steelseries-Arctis-7-head.patch
-Patch18: 0018-build-sys-add-the-Arctis-configuration.patch
-Patch33: 0033-qpaeq-change-license-from-AGPL-to-LGPL-v2.1.patch
-Patch35: 0035-alsa-mixer-Prioritize-hdmi-mappings-over-iec958-mapp.patch
-Patch74: 0074-build-sys-add-the-Dell-dock-TB16-configuration.patch
-Patch84: 0084-sink-source-Don-t-finish-move-if-unlink-happens-afte.patch
-Patch85: 0085-client-conf-Add-a-default-value-for-disable-memfd.patch
-Patch90: 0090-qpaeq-port-to-PyQt5.patch
-Patch93: 0093-alsa-fix-infinite-loop-with-Intel-HDMI-LPE.patch
-Patch96: 0106-memfd-wrappers-only-define-memfd_create-if-not-alrea.patch
 
 ## upstreamable patches
-# patchset from https://bugs.freedesktop.org/show_bug.cgi?id=100488
-Patch100: Fix-Intel-HDMI-LPE-problems.patch
-# patchset from https://bugs.freedesktop.org/show_bug.cgi?id=93898
-Patch101: v5-1-4-bluetooth-use-consistent-profile-names.patch
-Patch102: v5-2-4-bluetooth-separate-HSP-and-HFP.patch
-Patch103: v5-3-4-bluetooth-add-correct-HFP-rfcomm-negotiation.patch
-Patch104: v5-4-4-bluetooth-make-native-the-default-backend.patch
-# patchset from https://bugs.freedesktop.org/show_bug.cgi?id=100488 fixing pa
-# crashing on Bay/Cherry Trail unless realtime-scheduling=no is set
-Patch106: Fix-realtime-scheduling-on-byt-cht.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -180,7 +148,7 @@ Enlightened Sound Daemon (ESOUND).
 %package qpaeq
 Summary:	Pulseaudio equalizer interface
 Requires: 	%{name}%{?_isa} = %{version}-%{release}
-Requires:	python-qt5
+Requires:	python2-qt5
 %if 0%{?fedora} > 27
 Requires:	python2-dbus
 %else
@@ -241,9 +209,14 @@ JACK sink and source modules for the PulseAudio sound server.
 %package module-gconf
 Summary:        GConf support for the PulseAudio sound server
 Requires:       %{name}%{?_isa} = %{version}-%{release}
-
 %description module-gconf
 GConf configuration backend for the PulseAudio sound server.
+
+%package module-gsettings
+Summary:        Gsettings support for the PulseAudio sound server
+Requires:       %{name}%{?_isa} = %{version}-%{release}
+%description module-gsettings
+GSettings configuration backend for the PulseAudio sound server.
 
 %package libs
 Summary:        Libraries for PulseAudio clients
@@ -299,41 +272,12 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
 ## upstream patches
-%patch4 -p1
-%patch9 -p1
-%patch10 -p1
-%patch15 -p1
-%patch16 -p1
-%patch18 -p1
-%patch33 -p1
-%patch35 -p1
-%patch74 -p1
-%patch84 -p1
-%patch85 -p1
-%patch90 -p1
-# skip patch, possibly regressionish, https://bugzilla.redhat.com/show_bug.cgi?id=1551270
-#patch93 -p1
-%patch96 -p1
 
 ## upstreamable patches
-## per comments in the upstream bug, it would *appear* this one is no longer needed after applying patch93
-#patch100 -p1
-# rawhide-only, for now, on hadess' advice --rex
-%if 0%{?fedora} > 27
-%patch101 -p1
-%patch102 -p1
-%patch103 -p1
-%patch104 -p1
-%endif
-%patch106 -p1
 
 %patch201 -p1 -b .autostart
 %patch202 -p1 -b .disable_flat_volumes
-#patch203 -p1 -b .affinity
 %patch204 -p1 -b .exit_idle_time
-#if 0%{?fedora} > 27
-#patch205 -p1 -b .glibc_memfd
-#endif
 %if 0%{?systemd_activation}
 %patch206 -p1 -b .autospawn_disable
 %endif
@@ -370,6 +314,8 @@ NOCONFIGURE=1 ./bootstrap.sh
   %{?tcpwrap:--enable-tcpwrap}%{!?tcpwrap:--disable-tcpwrap} \
   --disable-bluez4 \
   --enable-bluez5 \
+  --enable-gconf \
+  --enable-gsettings \
 %ifarch %{arm}
   --disable-neon-opt \
 %endif
@@ -497,7 +443,9 @@ exit 0
 %if 0%{?systemd}
 %{_userunitdir}/pulseaudio.service
 %{_userunitdir}/pulseaudio.socket
+%if 0%{?systemd_activation}
 %{_userunitdir}/sockets.target.wants/pulseaudio.socket
+%endif
 %endif
 %{_bindir}/pulseaudio
 %{_libdir}/pulseaudio/libpulsecore-%{pa_major}.so
@@ -571,6 +519,7 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-ladspa-sink.so
 %{_libdir}/pulse-%{pa_major}/modules/module-remap-sink.so
 %{_libdir}/pulse-%{pa_major}/modules/module-always-sink.so
+%{_libdir}/pulse-%{pa_major}/modules/module-always-source.so
 %{_libdir}/pulse-%{pa_major}/modules/module-console-kit.so
 %{_libdir}/pulse-%{pa_major}/modules/module-position-event-sounds.so
 %{_libdir}/pulse-%{pa_major}/modules/module-augment-properties.so
@@ -647,11 +596,17 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-gconf.so
 %{_libexecdir}/pulse/gconf-helper
 
-%post libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
+%files module-gsettings
+%{_libdir}/pulse-%{pa_major}/modules/module-gsettings.so
+%{_libexecdir}/pulse/gsettings-helper
+%{_datadir}/GConf/gsettings/pulseaudio.convert
+%{_datadir}/glib-2.0/schemas/org.freedesktop.pulseaudio.gschema.xml
+
+%ldconfig_scriptlets libs
 
 %files libs -f %{name}.lang
-%doc README LICENSE GPL LGPL
+%doc README
+%license LICENSE GPL LGPL
 %dir %{_sysconfdir}/pulse/
 %config(noreplace) %{_sysconfdir}/pulse/client.conf
 %{_libdir}/libpulse.so.0*
@@ -660,8 +615,7 @@ exit 0
 %{_libdir}/pulseaudio/libpulsecommon-%{pa_major}.so
 %{_libdir}/pulseaudio/libpulsedsp.so
 
-%post libs-glib2 -p /sbin/ldconfig
-%postun libs-glib2 -p /sbin/ldconfig
+%ldconfig_scriptlets libs-glib2
 
 %files libs-glib2
 %{_libdir}/libpulse-mainloop-glib.so.0*
@@ -718,6 +672,30 @@ exit 0
 
 
 %changelog
+* Thu Jun 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-1
+- pulseaudio-12.0 is available (#1593489)
+- -libs: use %%license
+
+* Sun May 13 2018 Rex Dieter <rdieter@fedoraproject.org> - 11.99.1-1
+- 11.99.1 (#1577603)
+- use %%ldconfig_scriptlets
+- new pulseaudio--module-gsettings subpkg
+
+* Tue May 08 2018 Rex Dieter <rdieter@fedoraproject.org> - 11.1-21
+- drop unused getaffinity,memfd patches
+- include experimental bluetooth patches only on rawhide
+
+* Mon Apr 23 2018 Hans de Goede <hdegoede@redhat.com> - 11.1-20
+- Fix Intel LPE HDMI problems:
+- Update to upstream gitsnapshot which contains a fix for the crash caused
+  by patch93 (and contains patch93 fixing the Intel LPE HDMI pa crash)
+- Fix-realtime-scheduling-on-byt-cht.patch, Fix-Intel-HDMI-LPE-problems.patch:
+  drop both, both fixes are included in the git snapshot
+
+* Fri Mar 23 2018 Iryna Shcherbina <ishcherb@redhat.com> - 11.1-19
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Wed Mar 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 11.1-18
 - manually package sockets.target.wants/pulseaudio.socket to help
   handle socket activation on upgrades
