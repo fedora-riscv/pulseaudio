@@ -39,7 +39,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -64,15 +64,17 @@ Patch201: pulseaudio-autostart.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1265267
 Patch202: pulseaudio-9.0-disable_flat_volumes.patch
 
-# upstreamed exit_idle_time solution, set to 0 in managed environments
-Patch204: pulseaudio-11.1-exit_idle_time-2.patch
-
 # disable autospawn
 Patch206: pulseaudio-11.1-autospawn_disable.patch
 
 ## upstream patches
+Patch8: 0008-set-exit_idle_time-to-0-when-we-detect-a-session.patch
 
 ## upstreamable patches
+# candidate fix for
+#https://bugzilla.redhat.com/show_bug.cgi?id=1594596
+#https://bugs.freedesktop.org/show_bug.cgi?id=107044
+Patch100: switch-on-port-available-ignore-bluetooth-cards.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -272,12 +274,13 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
 ## upstream patches
+%patch8 -p1 -b .0008
 
 ## upstreamable patches
+%patch100 -p1 -b .switch-on-port-available-ignore-bluetooth-cards
 
 %patch201 -p1 -b .autostart
 %patch202 -p1 -b .disable_flat_volumes
-%patch204 -p1 -b .exit_idle_time
 %if 0%{?systemd_activation}
 %patch206 -p1 -b .autospawn_disable
 %endif
@@ -672,6 +675,10 @@ exit 0
 
 
 %changelog
+* Sun Jul 01 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-2
+- switch-on-port-available-ignore-bluetooth-cards.patch (#1594596, fdo#107044)
+- use upstreamed exit-idle-time.patch
+
 * Thu Jun 21 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-1
 - pulseaudio-12.0 is available (#1593489)
 - -libs: use %%license
