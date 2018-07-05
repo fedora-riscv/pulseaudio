@@ -39,7 +39,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -75,6 +75,10 @@ Patch8: 0008-set-exit_idle_time-to-0-when-we-detect-a-session.patch
 #https://bugzilla.redhat.com/show_bug.cgi?id=1594596
 #https://bugs.freedesktop.org/show_bug.cgi?id=107044
 Patch100: switch-on-port-available-ignore-bluetooth-cards.patch
+# candidate fix for
+#https://bugzilla.redhat.com/show_bug.cgi?id=1594568
+#https://bugs.freedesktop.org/show_bug.cgi?id=107078
+Patch101: ladspa-sink-fix-search-path.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -278,6 +282,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 
 ## upstreamable patches
 %patch100 -p1 -b .switch-on-port-available-ignore-bluetooth-cards
+%patch101 -p1 -b .ladspa-sink-fix-search-path
 
 %patch201 -p1 -b .autostart
 %patch202 -p1 -b .disable_flat_volumes
@@ -675,6 +680,9 @@ exit 0
 
 
 %changelog
+* Thu Jul 05 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-3
+- ladspa-sink-fix-search-path.patch (#1594568, fdo#107078)
+
 * Sun Jul 01 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-2
 - switch-on-port-available-ignore-bluetooth-cards.patch (#1594596, fdo#107044)
 - use upstreamed exit-idle-time.patch
