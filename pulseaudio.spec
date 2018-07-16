@@ -1,4 +1,4 @@
-%global pa_major   12.1
+%global pa_major   12.2
 #global pa_minor   0
 
 #global snap       20180411
@@ -48,8 +48,7 @@ URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 Source0:        pulseaudio-%{version}-%{gitrel}-g%{shortcommit}.tar.xz
 %else
 Source0:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz
-Source1:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz.md5
-Source2:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz.sha1
+Source1:        http://freedesktop.org/software/pulseaudio/releases/pulseaudio-%{version}.tar.xz.sha256
 %endif
 
 Source5:        default.pa-for-gdm
@@ -668,6 +667,9 @@ exit 0
 
 
 %changelog
+* Mon Jul 16 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.2-1
+- pulseaudio-12.2
+
 * Sat Jul 14 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.1-1
 - pulseaudio-12.1
 
