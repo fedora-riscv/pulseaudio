@@ -1,5 +1,5 @@
-%global pa_major   12.0
-#global pa_minor   0 
+%global pa_major   12.1
+#global pa_minor   0
 
 #global snap       20180411
 #global gitrel     129
@@ -39,7 +39,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -71,14 +71,6 @@ Patch206: pulseaudio-11.1-autospawn_disable.patch
 Patch8: 0008-set-exit_idle_time-to-0-when-we-detect-a-session.patch
 
 ## upstreamable patches
-# candidate fix for
-#https://bugzilla.redhat.com/show_bug.cgi?id=1594596
-#https://bugs.freedesktop.org/show_bug.cgi?id=107044
-Patch100: switch-on-port-available-ignore-bluetooth-cards.patch
-# candidate fix for
-#https://bugzilla.redhat.com/show_bug.cgi?id=1594568
-#https://bugs.freedesktop.org/show_bug.cgi?id=107078
-Patch101: ladspa-sink-fix-search-path.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -281,8 +273,6 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch8 -p1 -b .0008
 
 ## upstreamable patches
-%patch100 -p1 -b .switch-on-port-available-ignore-bluetooth-cards
-%patch101 -p1 -b .ladspa-sink-fix-search-path
 
 %patch201 -p1 -b .autostart
 %patch202 -p1 -b .disable_flat_volumes
@@ -470,7 +460,6 @@ exit 0
 %if 0%{?with_webrtc}
 %{_libdir}/pulse-%{pa_major}/modules/libwebrtc-util.so
 %endif
-#{_libdir}/pulse-%{pa_major}/modules/module-access.so
 %{_libdir}/pulse-%{pa_major}/modules/module-allow-passthrough.so
 %{_libdir}/pulse-%{pa_major}/modules/module-alsa-sink.so
 %{_libdir}/pulse-%{pa_major}/modules/module-alsa-source.so
@@ -483,7 +472,6 @@ exit 0
 %{_libdir}/pulse-%{pa_major}/modules/module-dbus-protocol.so
 %{_libdir}/pulse-%{pa_major}/modules/module-filter-apply.so
 %{_libdir}/pulse-%{pa_major}/modules/module-filter-heuristics.so
-#{_libdir}/pulse-%{pa_major}/modules/module-flatpak.so
 %{_libdir}/pulse-%{pa_major}/modules/module-device-manager.so
 %{_libdir}/pulse-%{pa_major}/modules/module-loopback.so
 %{_libdir}/pulse-%{pa_major}/modules/module-esound-compat-spawnfd.so
@@ -680,6 +668,12 @@ exit 0
 
 
 %changelog
+* Sat Jul 14 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.1-1
+- pulseaudio-12.1
+
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 12.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Thu Jul 05 2018 Rex Dieter <rdieter@fedoraproject.org> - 12.0-3
 - ladspa-sink-fix-search-path.patch (#1594568, fdo#107078)
 
