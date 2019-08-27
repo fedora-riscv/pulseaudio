@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        8%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        9%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -267,6 +267,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch8 -p1 -b .0008
 %patch287 -p1 -b .0287
 %patch304 -p1 -b .0304
+%patch392 -p1 -b .0392
 
 ## upstreamable patches
 
@@ -668,7 +669,7 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
-* Tue Aug 27 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-8
+* Tue Aug 27 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-9
 - (branch) Mark channel parameter as earlyclobber (#1745733)
 
 * Wed Jul 03 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-7
