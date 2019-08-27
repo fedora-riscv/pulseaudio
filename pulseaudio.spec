@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        7%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        8%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -65,6 +65,7 @@ Patch206: pulseaudio-11.1-autospawn_disable.patch
 Patch8: 0008-set-exit_idle_time-to-0-when-we-detect-a-session.patch
 Patch287: 0287-alsa-Use-correct-header-path.patch
 Patch304: 0304-alsa-Fix-inclusion-of-use-case.h.patch
+Patch392: 0392-svolume-Mark-channel-parameter-as-earlyclobber.patch
 
 ## upstreamable patches
 # https://lists.freedesktop.org/archives/pulseaudio-discuss/2019-July/031257.html
@@ -667,6 +668,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Tue Aug 27 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-8
+- (branch) Mark channel parameter as earlyclobber (#1745733)
+
 * Wed Jul 03 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-7
 - alsa-sink: clear pollfd revents before poll
 
