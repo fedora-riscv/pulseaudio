@@ -1,4 +1,4 @@
-%global pa_major   12.2
+%global pa_major   13.0
 #global pa_minor   0
 
 #global snap       20180411
@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        7%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -55,21 +55,15 @@ Patch201: pulseaudio-autostart.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1265267
 Patch202: pulseaudio-9.0-disable_flat_volumes.patch
 
-# explicitly use /usr/bin/python2
-Patch203: pulseaudio-12.2-qpaeq_python2.patch
+# explicitly use /usr/bin/python3
+Patch203: pulseaudio-qpaeq_python3.patch
 
 # disable autospawn
 Patch206: pulseaudio-11.1-autospawn_disable.patch
 
 ## upstream patches
-Patch8: 0008-set-exit_idle_time-to-0-when-we-detect-a-session.patch
-Patch287: 0287-alsa-Use-correct-header-path.patch
-Patch304: 0304-alsa-Fix-inclusion-of-use-case.h.patch
 
 ## upstreamable patches
-# https://lists.freedesktop.org/archives/pulseaudio-discuss/2019-July/031257.html
-# can be dropped for future releases
-Patch501: 0001-alsa-sink-clear-pollfd-revents-before-poll.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -139,12 +133,8 @@ Enlightened Sound Daemon (ESOUND).
 %package qpaeq
 Summary:	Pulseaudio equalizer interface
 Requires: 	%{name}%{?_isa} = %{version}-%{release}
-Requires:	python2-qt5
-%if 0%{?fedora} < 28 && 0%{?rhel} < 8
-Requires:	dbus-python
-%else
-Requires:	python2-dbus
-%endif
+Requires:	python3-qt5-base
+Requires:	python3-dbus
 %description qpaeq
 qpaeq is a equalizer interface for pulseaudio's equalizer sinks.
 
@@ -263,9 +253,6 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %setup -q -T -b0 -n %{name}-%{version}%{?gitrel:-%{gitrel}-g%{shortcommit}}
 
 ## upstream patches
-%patch8 -p1 -b .0008
-%patch287 -p1 -b .0287
-%patch304 -p1 -b .0304
 
 ## upstreamable patches
 
@@ -275,8 +262,6 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %if 0%{?systemd}
 %patch206 -p1 -b .autospawn_disable
 %endif
-
-%patch501 -p1
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -444,6 +429,7 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %{_userunitdir}/pulseaudio.service
 %{_userunitdir}/pulseaudio.socket
 %endif
+%{_bindir}/pa-info
 %{_bindir}/pulseaudio
 %{_libdir}/pulseaudio/libpulsecore-%{pa_major}.so
 %dir %{_libdir}/pulse-%{pa_major}/
@@ -667,6 +653,24 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Fri Sep 13 2019 Rex Dieter <rdieter@fedoraproject.org> - 13.0-1
+- 13.0
+
+* Mon Sep 02 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.99.3-1
+- pulseaudio-12.99.3
+
+* Wed Aug 07 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.99.2-2
+- -qpaeq: use python3 (#1738047)
+
+* Tue Aug 06 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.99.2-1
+- pulseaudio-12.99.2
+
+* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 12.99.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
+
+* Tue Jul 09 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.99.1-1
+- pulseaudio-12.99.1
+
 * Wed Jul 03 2019 Rex Dieter <rdieter@fedoraproject.org> - 12.2-7
 - alsa-sink: clear pollfd revents before poll
 
