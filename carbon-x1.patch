@@ -1,0 +1,19 @@
+diff -ru pulseaudio-13.0/src/Makefile.in pulseaudio-13.0.new/src/Makefile.in
+--- pulseaudio-13.0/src/Makefile.in	2020-02-26 12:40:21.244577565 +0100
++++ pulseaudio-13.0.new/src/Makefile.in	2020-02-26 12:40:06.711939950 +0100
+@@ -3429,6 +3429,7 @@
+ 	modules/alsa/mixer/paths/analog-output-headphones-2.conf \
+ 	modules/alsa/mixer/paths/analog-output-lineout.conf \
+ 	modules/alsa/mixer/paths/analog-output-mono.conf \
++	modules/alsa/mixer/paths/digital-input-front-mic.conf \
+ 	modules/alsa/mixer/paths/iec958-stereo-input.conf \
+ 	modules/alsa/mixer/paths/iec958-stereo-output.conf \
+ 	modules/alsa/mixer/paths/hdmi-output-0.conf \
+@@ -3458,6 +3459,7 @@
+ 	modules/alsa/mixer/profile-sets/native-instruments-korecontroller.conf \
+ 	modules/alsa/mixer/profile-sets/kinect-audio.conf \
+ 	modules/alsa/mixer/profile-sets/sb-omni-surround-5.1.conf \
++	modules/alsa/mixer/profile-sets/sof-hda-dsp-dmic4.conf \
+ 	modules/alsa/mixer/profile-sets/steelseries-arctis-5-usb-audio.conf \
+ 	modules/alsa/mixer/profile-sets/steelseries-arctis-7-usb-audio.conf \
+ 	modules/alsa/mixer/profile-sets/dell-dock-tb16-usb-audio.conf \
