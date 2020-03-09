@@ -1,9 +1,9 @@
-%global pa_major   13.0
-#global pa_minor   0
+%global pa_major   13.99
+%global pa_minor   1
 
-#global snap       20180411
-#global gitrel     129
-#global gitcommit  ba2b748d40f78b9d9f945b5422ca74d05f8d0d07
+#global snap       20200105
+#global gitrel     103
+#global gitcommit  f5d3606fe76302c7dbdb0f6a80400df829a5f846
 #global shortcommit %(c=%{gitcommit}; echo ${c:0:5})
 
 # webrtc bits go wonky without this
@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -51,20 +51,8 @@ Source5:        default.pa-for-gdm
 # valid even when using systemd socket activation too
 Patch201: pulseaudio-autostart.patch
 
-# disable flat-volumes by default
-# https://bugzilla.redhat.com/show_bug.cgi?id=1265267
-Patch202: pulseaudio-9.0-disable_flat_volumes.patch
-
-# explicitly use /usr/bin/python3
-Patch203: pulseaudio-qpaeq_python3.patch
-
 # disable autospawn
 Patch206: pulseaudio-11.1-autospawn_disable.patch
-
-Patch207: 0001-alsa-disable-UCM-when-a-profile_set-is-set-in-udev.patch
-
-Patch208: 0001-Add-profile-set-for-Carbon-X1.patch
-Patch209: carbon-x1.patch
 
 ## upstream patches
 
@@ -262,14 +250,9 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 ## upstreamable patches
 
 %patch201 -p1 -b .autostart
-%patch202 -p1 -b .disable_flat_volumes
-%patch203 -p1 -b .qpaeq_python2
 %if 0%{?systemd}
 %patch206 -p1 -b .autospawn_disable
 %endif
-%patch207 -p1 -b .0207
-%patch208 -p1 -b .0208
-%patch209 -p1 -b .0209
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -661,10 +644,16 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
-* Wed Feb 26 2020 Wim Taymans <wtaymans@redhat.com> - 13.0-2
-- Add Carbon X1 profile sets and udev rule. Also avoid using the
-  UCM profile, this version of pulseaudio can't parse the UCM
-  properly.
+* Fri Feb 14 2020 Rex Dieter <rdieter@fedoraproject.org> - 13.99.1-1
+- 13.99.1
+
+* Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 13.0-3.20200105gitf5d36
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
+
+* Wed Jan 08 2020 Jaroslav Kysela <perex@perex.cz> - 13.0-2
+- Update to upstream gitsnapshot
+- ALSA UCM fixes
+- active_port sink selection fixes
 
 * Fri Sep 13 2019 Rex Dieter <rdieter@fedoraproject.org> - 13.0-1
 - 13.0
