@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -55,8 +55,13 @@ Patch201: pulseaudio-autostart.patch
 Patch206: pulseaudio-11.1-autospawn_disable.patch
 
 ## upstream patches
+Patch207: 0001-alsa-ucm-correct-the-channel-default-logic-stereo.patch
+Patch208: 0002-alsa-ucm-do-not-assign-JackHWMute-when-JackControl-i.patch
+Patch209: 0003-ucm-Don-t-log-errors-during-normal-operation.patch
+Patch210: 0004-bluetooth-Ensure-that-only-one-A2DP-codec-is-registe.patch
 
 ## upstreamable patches
+Patch211: 0005-alsa-handle-unavailbale-HW-volume-in-UCM.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -253,6 +258,11 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %if 0%{?systemd}
 %patch206 -p1 -b .autospawn_disable
 %endif
+%patch207 -p1 -b .0007
+%patch208 -p1 -b .0008
+%patch209 -p1 -b .0009
+%patch210 -p1 -b .0010
+%patch211 -p1 -b .0011
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -644,6 +654,10 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Fri Mar 20 2020 Wim Taymans <wtaymans@redhat.com> - 13.99.1-2
+- Add some more UCM patches
+- Fix missing UCM mixers crash (#1815437)
+
 * Fri Feb 14 2020 Rex Dieter <rdieter@fedoraproject.org> - 13.99.1-1
 - 13.99.1
 
