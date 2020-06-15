@@ -31,7 +31,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -60,10 +60,11 @@ Patch208: 0002-alsa-ucm-do-not-assign-JackHWMute-when-JackControl-i.patch
 Patch209: 0003-ucm-Don-t-log-errors-during-normal-operation.patch
 Patch210: 0004-bluetooth-Ensure-that-only-one-A2DP-codec-is-registe.patch
 Patch211: 0005-alsa-handle-unavailbale-HW-volume-in-UCM.patch
+Patch212: 0001-alsa-ucm-use-the-right-profile-name.patch
+Patch213: 0001-ucm-fix-the-port-ucm-device-activation-on-boot.patch
+Patch214: 0002-alsa-sink-source-fix-the-mixer-initialization.patch
 
 ## upstreamable patches
-Patch212: 0001-ucm-fix-the-port-ucm-device-activation-on-boot.patch
-Patch213: 0002-alsa-sink-source-fix-the-mixer-initialization.patch
 
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
@@ -267,6 +268,7 @@ This package contains GDM integration hooks for the PulseAudio sound server.
 %patch211 -p1 -b .0011
 %patch212 -p1 -b .0012
 %patch213 -p1 -b .0013
+%patch214 -p1 -b .0014
 
 sed -i.no_consolekit -e \
   's/^load-module module-console-kit/#load-module module-console-kit/' \
@@ -658,6 +660,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Mon Jun 15 2020 Wim Taymans <wtaymans@redhat.com> - 13.99.1-4
+- Add patch to fix crash with profile name (#1817092)
+
 * Tue Mar 31 2020 Wim Taymans <wtaymans@redhat.com> - 13.99.1-3
 - Add more UCM patches (#1818883)
 
