@@ -58,6 +58,7 @@ Patch206: pulseaudio-11.1-autospawn_disable.patch
 
 ## upstreamable patches
 
+BuildRequires: make
 BuildRequires:  automake libtool
 BuildRequires:  gcc-c++
 BuildRequires:  pkgconfig(bash-completion)
