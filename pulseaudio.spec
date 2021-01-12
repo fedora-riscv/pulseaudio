@@ -11,6 +11,12 @@
 %undefine _strict_symbol_defs_build
 %global with_webrtc 1
 
+%if 0%{?fedora}
+%global enable_lirc 1
+%global enable_jack 1
+%global enable_gconf 1
+%endif
+
 # https://bugzilla.redhat.com/983606
 %global _hardened_build 1
 
@@ -31,7 +37,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -73,12 +79,7 @@ BuildRequires:  libsndfile-devel
 BuildRequires:  alsa-lib-devel
 BuildRequires:  glib2-devel
 BuildRequires:  gtk2-devel
-BuildRequires:  GConf2-devel
 BuildRequires:  avahi-devel
-%if 0%{?fedora}
-%global enable_lirc 1
-%global enable_jack 1
-%endif
 BuildRequires:  libatomic_ops-static, libatomic_ops-devel
 BuildRequires:  pkgconfig(bluez) >= 5.0
 BuildRequires:  sbc-devel
@@ -185,11 +186,14 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 JACK sink and source modules for the PulseAudio sound server.
 %endif
 
+%if 0%{?enable_gconf}
 %package module-gconf
 Summary:        GConf support for the PulseAudio sound server
+BuildRequires:  GConf2-devel
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 %description module-gconf
 GConf configuration backend for the PulseAudio sound server.
+%endif
 
 %package module-gsettings
 Summary:        Gsettings support for the PulseAudio sound server
@@ -291,7 +295,7 @@ NOCONFIGURE=1 ./bootstrap.sh
   --disable-tcpwrap \
   --disable-bluez4 \
   --enable-bluez5 \
-  --enable-gconf \
+  %{?enable_gconf:--enable-gconf}%{!?enable_gconf:--disable-gconf} \
   --enable-gsettings \
 %ifarch %{arm}
   --disable-neon-opt \
@@ -569,9 +573,11 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %{_libdir}/pulse-%{pa_major}/modules/module-bluetooth-discover.so
 %{_libdir}/pulse-%{pa_major}/modules/module-bluetooth-policy.so
 
+%if 0%{?enable_gconf}
 %files module-gconf
 %{_libdir}/pulse-%{pa_major}/modules/module-gconf.so
 %{_libexecdir}/pulse/gconf-helper
+%endif
 
 %files module-gsettings
 %{_libdir}/pulse-%{pa_major}/modules/module-gsettings.so
@@ -649,6 +655,10 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Tue Jan 12 2021 Wim Taymans <wtaymans@redhat.com> - 14.0-3
+- Move enable_ switches next to the other switches on top
+- Only enable gconf on fedora
+
 * Tue Nov 24 2020 Neal Gompa <ngompa13@gmail.com> - 14.0-2
 - Add 'pulseaudio-daemon' Provides + Conflicts to support swapping with PipeWire
 
