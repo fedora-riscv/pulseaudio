@@ -1,4 +1,4 @@
-%global pa_major   14.1
+%global pa_major   14.2
 #global pa_minor   0
 
 #global snap       20200105
@@ -655,6 +655,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Mon Jan 18 2021 Rex Dieter <rdieter@fedoraproject.org> - 14.2-1
+- 14.2
+
 * Wed Jan 13 2021 Rex Dieter <rdieter@fedoraproject.org> - 14.1-1
 - 14.1
 
