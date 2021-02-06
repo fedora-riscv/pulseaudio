@@ -646,14 +646,14 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %{_mandir}/man1/parecord.1*
 %{_mandir}/man1/pasuspender.1*
 %{_mandir}/man1/pax11publish.1*
-%{bash_completionsdir}/completions/pacat
-%{bash_completionsdir}/completions/pacmd
-%{bash_completionsdir}/completions/pactl
-%{bash_completionsdir}/completions/padsp
-%{bash_completionsdir}/completions/paplay
-%{bash_completionsdir}/completions/parec
-%{bash_completionsdir}/completions/parecord
-%{bash_completionsdir}/completions/pasuspender
+%{bash_completionsdir}/pacat
+%{bash_completionsdir}/pacmd
+%{bash_completionsdir}/pactl
+%{bash_completionsdir}/padsp
+%{bash_completionsdir}/paplay
+%{bash_completionsdir}/parec
+%{bash_completionsdir}/parecord
+%{bash_completionsdir}/pasuspender
 
 %if 0%{?gdm_hooks}
 %files gdm-hooks
