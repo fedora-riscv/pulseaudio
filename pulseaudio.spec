@@ -37,7 +37,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -424,7 +424,7 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %config(noreplace) %{_sysconfdir}/pulse/default.pa
 %config(noreplace) %{_sysconfdir}/pulse/system.pa
 %{_sysconfdir}/dbus-1/system.d/pulseaudio-system.conf
-%{bash_completionsdir}/*
+%{bash_completionsdir}/pulseaudio
 %if 0%{?systemd}
 %{_userunitdir}/pulseaudio.service
 %{_userunitdir}/pulseaudio.socket
@@ -646,6 +646,14 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %{_mandir}/man1/parecord.1*
 %{_mandir}/man1/pasuspender.1*
 %{_mandir}/man1/pax11publish.1*
+%{bash_completionsdir}/completions/pacat
+%{bash_completionsdir}/completions/pacmd
+%{bash_completionsdir}/completions/pactl
+%{bash_completionsdir}/completions/padsp
+%{bash_completionsdir}/completions/paplay
+%{bash_completionsdir}/completions/parec
+%{bash_completionsdir}/completions/parecord
+%{bash_completionsdir}/completions/pasuspender
 
 %if 0%{?gdm_hooks}
 %files gdm-hooks
@@ -655,6 +663,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Sat Feb 06 2021 Rex Dieter <rdieter@fedoraproject.org> - 14.2-3
+- -utils: move appropriate bash completions here (#1925706)
+
 * Wed Jan 27 2021 Fedora Release Engineering <releng@fedoraproject.org> - 14.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
 
