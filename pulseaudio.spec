@@ -542,7 +542,7 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 %endif
 
 %files module-x11
-%{_sysconfdir}/xdg/autostart/pulseaudio.desktop
+%config(noreplace) %{_sysconfdir}/xdg/autostart/pulseaudio.desktop
 #{_bindir}/start-pulseaudio-kde
 %{_bindir}/start-pulseaudio-x11
 %{_libdir}/pulse-%{pa_major}/modules/module-x11-bell.so
