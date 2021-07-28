@@ -270,8 +270,8 @@ sed -i.PACKAGE_VERSION -e "s|^PACKAGE_VERSION=.*|PACKAGE_VERSION=\'%{version}\'|
   -D system_group=pulse \
   -D access_group=pulse-access \
   -D oss-output=disabled \
-  %{?enable_jack:-D jack=enabled}%{!?enable_jack:-D jack=disabled} \
-  %{?enable_lirc:-D lirc=enabled}%{!?enable_lirc:-D lirc=disabled} \
+  -D jack=%{?enable_jack:enabled}%{!?enable_jack:disabled} \
+  -D lirc=%{?enable_lirc:enabled}%{!?enable_lirc:disabled} \
   -D tcpwrap=disabled \
   -D bluez5=enabled \
   -D gstreamer=enabled \
@@ -280,11 +280,10 @@ sed -i.PACKAGE_VERSION -e "s|^PACKAGE_VERSION=.*|PACKAGE_VERSION=\'%{version}\'|
   -D elogind=disabled \
   -D valgrind=disabled \
   -D gtk=disabled \
-%if 0%{?with_webrtc}
-  -D webrtc-aec=enabled \
-%endif
-  %{?systemd:-D systemd=enabled}%{!?systemd:-D systemd=disabled} \
-  %{?tests:-D tests=true}%{!?tests:-D tests=false}
+  -D soxr=%{?fedora:enabled}%{!?fedora:disabled} \
+  -D webrtc-aec=%{?with_webrtc:enabled}%{!?with_webrtc:disabled} \
+  -D systemd=%{?systemd:enabled}%{!?systemd:disabled} \
+  -D tests=%{?tests:true}%{!?tests:false}
 
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 %meson_build
