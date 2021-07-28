@@ -1,5 +1,5 @@
 diff --git a/src/daemon/start-pulseaudio-x11.in b/src/daemon/start-pulseaudio-x11.in
-index 0e84315c3..6533e125b 100755
+index 722a639c0..7cdf14e4d 100755
 --- a/src/daemon/start-pulseaudio-x11.in
 +++ b/src/daemon/start-pulseaudio-x11.in
 @@ -17,6 +17,9 @@
@@ -9,6 +9,6 @@ index 0e84315c3..6533e125b 100755
 +# probe to test if autospawn works, else resort to starting manually
 +@PACTL_BINARY@ info > /dev/null 2>&1 || @PA_BINARY@ --start "$@"
 +
- if [ x"$DISPLAY" != x ] ; then
- 
-     @PACTL_BINARY@ load-module module-x11-publish "display=$DISPLAY xauthority=$XAUTHORITY" > /dev/null
+ if [ -n "$1" ] ; then
+     case $1 in
+     stop)
