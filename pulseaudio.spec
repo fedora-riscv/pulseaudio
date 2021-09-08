@@ -36,7 +36,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -125,6 +125,10 @@ Requires:       rtkit
 # Virtual Provides to support swapping between PipeWire-PA and PA
 Provides:       pulseaudio-daemon
 Conflicts:      pulseaudio-daemon
+
+# Packages removed in 15.0
+Obsoletes:      pulseaudio-esound-compat < 15.0
+Obsoletes:      pulseaudio-module-gconf < 15.0
 
 %description
 PulseAudio is a sound server for Linux and other Unix like operating
@@ -606,6 +610,10 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Wed Sep 08 2021 Wim Taymans <wtaymans@redhat.com> - 15.0-2
+- Obsoletes: pulseaudio-esound-compat and pulseaudio-module-gconf
+- Resolves: #2001334
+
 * Wed Jul 28 2021 Wim Taymans <wtaymans@redhat.com> - 15.0-1
 - Update to 15.0
 - convert to meson build
