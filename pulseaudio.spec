@@ -36,7 +36,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        3%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -610,6 +610,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Fri Sep 10 2021 Rex Dieter <rdieter@fedoraproject.org> - 15.0-3
+- fix autostart.patch (#2001664)
+
 * Wed Sep 08 2021 Wim Taymans <wtaymans@redhat.com> - 15.0-2
 - Obsoletes: pulseaudio-esound-compat and pulseaudio-module-gconf
 - Resolves: #2001334
