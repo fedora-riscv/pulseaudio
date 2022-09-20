@@ -36,7 +36,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        1%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        2%{?snap:.%{snap}git%{shortcommit}}%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -610,6 +610,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Tue Sep 20 2022 Rex Dieter <rdieter@fedoraproject.org> - 16.1-2 
+- rebuild for libsndfile (#2128041)
+
 * Thu Jul 21 2022 Rex Dieter <rdieter@fedoraproject.org> - 16.1-1
 - 16.1
 
