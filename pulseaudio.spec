@@ -36,7 +36,7 @@
 Name:           pulseaudio
 Summary:        Improved Linux Sound Server
 Version:        %{pa_major}%{?pa_minor:.%{pa_minor}}
-Release:        4%{?snap:.%{snap}git%{shortcommit}}%{?dist}
+Release:        4%{?snap:.%{snap}git%{shortcommit}}.rv64%{?dist}
 License:        LGPLv2+
 URL:            http://www.freedesktop.org/wiki/Software/PulseAudio
 %if 0%{?gitrel}
@@ -288,6 +288,11 @@ sed -i.PACKAGE_VERSION -e "s|^PACKAGE_VERSION=.*|PACKAGE_VERSION=\'%{version}\'|
   -D webrtc-aec=%{?with_webrtc:enabled}%{!?with_webrtc:disabled} \
   -D systemd=%{?systemd:enabled}%{!?systemd:disabled} \
   -D tests=%{?tests:true}%{!?tests:false}
+
+%ifarch riscv64
+# Fix lp64d path issue for riscv64
+sed -i -e 's@/lib64/lp64d/../lib64/lp64d@/usr/lib64@g' %{_builddir}/%{?buildsubdir}/%{?_vpath_builddir}/build.ninja
+%endif
 
 # we really should preopen here --preopen-mods=module-udev-detect.la, --force-preopen
 %meson_build
@@ -634,6 +639,9 @@ systemctl --no-reload preset --global pulseaudio.socket >/dev/null 2>&1 || :
 
 
 %changelog
+* Sun Feb 26 2023 Liu Yang <Yang.Liu.sn@gmail.com> - 16.1-4.rv64
+- Fix build on riscv64
+
 * Thu Jan 26 2023 Wim Taymans <wtaymans@redhat.com> - 16.1-4
 - Add padsp again (rhbz#2120847)
 
